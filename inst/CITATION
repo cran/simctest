@@ -1,0 +1,17 @@
+citHeader("To cite the package in  publications use:")
+
+citEntry(entry="article",
+         title = "Sequential Implementation of Monte Carlo Tests with Uniformly Bounded Resampling Risk",
+         author = "Axel Gandy",
+         year         = 2009,
+         note         = "To appear in JASA.",
+         url          = "http://www.ma.ic.ac.uk/~agandy",
+         
+         textVersion = 
+         paste("Axel Gandy (2009). ", 
+               "Sequential Implementation of Monte Carlo Tests with Uniformly Bounded Resampling Risk.",
+               "To appear in JASA.",
+               sep="")
+         )
+
+citFooter("Please cite the package when using it")

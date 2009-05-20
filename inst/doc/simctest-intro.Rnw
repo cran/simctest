@@ -1,0 +1,178 @@
+\documentclass{article}
+%\VignetteIndexEntry{Short Introduction}
+
+
+\usepackage{hyperref}
+
+\usepackage{natbib}
+
+\title{R-package ``seqampl''\\ A Short Introduction}
+
+\author{Axel Gandy}
+\begin{document}
+\maketitle
+
+
+
+This document describes briefly how to use the
+R-package which implements
+the algorithm for ``Sequential implementation of monte carlo tests with uniformly bounded resampling risk.'' based on \cite{gandy06:Resampling}.
+
+
+
+
+\section{Installation}
+
+
+
+The installation is as for most R-packages that do not 
+reside in CRAN. The general procedure is  described
+in the Section 6 on ``Add-on packages'' in the
+R Manual on Istallation and Administration:\\
+\url{http://cran.r-project.org/doc/manuals/R-admin.html}.
+
+The following is merely an adaptation of those procedures to our package.
+
+
+
+% \subsection{Windows}
+% \label{sec:win}
+% Download the package ``simctest\_1.0-0.zip''.
+% In the graphical evironment (Rgui)
+% use the menue option :\\
+% Packets ... Install packet from local zip-file.
+
+
+
+\subsection{Linux/Unix}
+
+
+
+If you do not have write access to the package repository:
+\begin{enumerate}
+\item Download the package ``simctest\_1.0-0.tar.gz'' and
+  place it into your home directory.
+\item Issue the following commands:
+\begin{verbatim}
+echo ".libPaths(\"$HOME/Rlibrary\")" >$HOME/.Rprofile
+R CMD INSTALL -L $HOME/Rlibrary simctest_1.0-0.tar.gz
+\end{verbatim}
+\item You may now delete the file ``simctest\_1.0-0.tar.gz''.
+\end{enumerate}
+
+
+
+
+
+\section{Usage}
+
+Obviously, the pacakge is loaded by typing
+<<>>=
+library(simctest)
+@ 
+
+This document can be accessed via
+<<eval=FALSE>>=
+vignette("simctest-intro")
+@ 
+
+Documentation of the most useful command can be obtained as follows:
+\begin{verbatim}
+> ? simctest
+\end{verbatim}
+
+The following is an artificial example.  By default the algorithm will
+report back after at most 10000 steps, 
+work with a threshold of $\alpha=0.05$ and use the spending sequence
+$$
+\epsilon_n=0.001\frac{n}{1000+n}.  
+$$
+
+A simple example of a test with true  p-value $0.07$.
+
+<<>>=
+res <- simctest(function() runif(1)<0.07);
+res
+@ 
+
+One can also obtain a  confidence interval (wrt the resampling procedure) 
+of the computed $p$-value. By default a  95\% confidence interval is computed.
+<<>>=
+confint(res)
+@ 
+
+\subsection{Behaviour at the Threshold}
+
+Next, consider an example where the true p-value is precisely equal to the threshold $\alpha$.
+Here, we will expect that the algorithm stops only with probability $2\epsilon=0.002$.
+If the algorithm has not stopped after  10000 steps the algorithm will return.
+<<>>=
+res <- simctest(function() runif(1)<0.05);
+res
+@ 
+Note that a part of the output it the interval in which the final
+estimator will lie.
+
+One can always take a few more steps
+<<>>=
+res <- cont(res,10000)
+res
+@ 
+
+
+
+\subsection{A simple bootstrap test}
+An example from \cite[section 11.4, p. 534]{davison1997bma}:
+<<>>=
+data(fir,package="boot")
+fir.mle <- c(sum(fir$count), nrow(fir))
+fir.gen <- function(data, mle){
+  d<-data
+  y <- sample(x=mle[2],size=mle[1],replace=TRUE)
+  d$count <- tabulate(y,mle[2])
+  d
+}
+fir.fun <- function(data)
+  (nrow(data)-1)*var(data$count)/mean(data$count)
+resampl <- function(){
+  obs<fir.fun(fir.gen(data=fir,mle=fir.mle))
+}
+obs<-fir.fun(fir)
+simctest(resampl)
+@ 
+
+\subsection{Computing the power of a test}
+<<>>=
+n <- 10
+system.time(replicate(1000, {obs<-mean(rnorm(n)+0.01);simctest(function() mean(rnorm(n))>obs,maxsteps=1000)}));
+@ 
+Compared with the naive approach:
+<<>>=
+system.time(replicate(1000, {obs<-mean(rnorm(n)+0.01);mean(replicate(1000, mean(rnorm(n))>obs))}));
+@ 
+
+To reduce the overhead of computing the boundaries, they can be pre-computed.
+<<>>=
+alg <- getalgprecomp()
+system.time(replicate(1000, {obs<-mean(rnorm(n)+0.01);run(alg,function() mean(rnorm(n))>obs,maxsteps=1000)}));
+@ 
+
+For comparison purposes, the same without  without pre-computation:
+<<>>=
+alg <- getalgonthefly()
+system.time(replicate(1000, {obs<-mean(rnorm(n)+0.01);run(alg,function() mean(rnorm(n))>obs,maxsteps=1000)}));
+@ 
+
+
+
+
+
+
+
+
+\bibliographystyle{plainnat}
+\bibliography{papers}
+
+
+\end{document}
+

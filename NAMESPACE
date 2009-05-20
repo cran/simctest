@@ -1,0 +1,12 @@
+export(simctest,getalgprecomp,getalgonthefly)
+#S3method(confint,sampalgres)
+import("methods")
+import("stats")
+exportClasses("sampalg",
+              "sampalgonthefly",
+              "sampalgPrecomp",
+              "sampalgres",
+              "sampalgontheflyres"
+              )
+exportMethods(run,cont,getbounds,show,confint,getU,getL)
+useDynLib("simctest",simctest.extendboundsC=extendbounds)
