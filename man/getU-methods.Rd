@@ -17,7 +17,7 @@ getU(alg,ind)
 }
 \section{Methods}{
 \describe{
-\item{alg = "sampalgPrecomp"}{ ~~describe this method here }
+\item{alg = "sampalgPrecomp"}{ the sampling algorithm to be used }
 }}
 \examples{
    getU(getalgprecomp(),1:100)

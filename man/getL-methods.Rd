@@ -18,7 +18,7 @@ getL(alg,ind)
 }
 \section{Methods}{
 \describe{
-\item{alg = "sampalgPrecomp"}{ ~~describe this method here }
+\item{alg = "sampalgPrecomp"}{ the sampling algorithm to be used }
 }}
 \examples{
    getL(getalgprecomp(),1:100)

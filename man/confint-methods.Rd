@@ -15,7 +15,7 @@ confint(object,parm,level=0.95,...)
   \item{object}{An object of type \code{\linkS4class{sampalgres}}
     resulting from a previous call to \code{\link[=run-methods]{run}}
     or
-    \code{\link[contalg-methods]{cont}}.
+    \code{\link[=cont-methods]{cont}}.
   }
   \item{parm}{must be missing.}
   \item{level}{the desired coverage probability.}

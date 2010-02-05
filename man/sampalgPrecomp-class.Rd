@@ -3,7 +3,7 @@
 \docType{class}
 \alias{sampalgPrecomp-class}
 
-\title{Class "sampalgPrecomp" ~~~ }
+\title{Class "sampalgPrecomp"}
 \description{A sampling algorithm that precomputes the boundaries}
 \section{Objects from the Class}{
 Objects can be created by calls to \code{\link{getalgprecomp}}

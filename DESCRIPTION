@@ -1,6 +1,6 @@
 Package: simctest
-Version: 1.0-0
-Date: 2009-05-20
+Version: 1.0-1
+Date: 2010-02-05
 Title: Sequential (or Safe) Implementation of Monte Carlo tests with
         uniformly bounded resampling risk.
 Author: Axel Gandy <a.gandy@imperial.ac.uk>
@@ -11,7 +11,7 @@ Description: Efficient computation of p-values for Monte Carlo tests,
         e.g. bootstrap tests. The algorithm provides a uniform bound on
         the resampling risk.
 License: GPL (>= 2)
-URL: http://www.ma.ic.ac.uk/~agandy
-Packaged: Thu May 28 17:16:50 2009; agandy
+URL: http://www2.imperial.ac.uk/~agandy
+Packaged: 2010-02-06 18:10:33 UTC; agandy
 Repository: CRAN
-Date/Publication: 2009-05-28 17:59:19
+Date/Publication: 2010-02-07 09:16:27

@@ -2,7 +2,7 @@
 \alias{getalgprecomp}
 \alias{getalgonthefly}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Construct algorithms  ~~function to do ... ~~ }
+\title{Construct algorithms}
 \description{
   Constructs classes of type \code{\linkS4class{sampalgonthefly}} and \code{\linkS4class{sampalgPrecomp}}.
 }

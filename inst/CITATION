@@ -4,13 +4,14 @@ citEntry(entry="article",
          title = "Sequential Implementation of Monte Carlo Tests with Uniformly Bounded Resampling Risk",
          author = "Axel Gandy",
          year         = 2009,
-         note         = "To appear in JASA.",
-         url          = "http://www.ma.ic.ac.uk/~agandy",
-         
+         journal = "Journal of the American Statistical Association",
+	  volume = "104",
+  	number	 = "488",
+  	pages = "1504--1511",
          textVersion = 
          paste("Axel Gandy (2009). ", 
                "Sequential Implementation of Monte Carlo Tests with Uniformly Bounded Resampling Risk.",
-               "To appear in JASA.",
+               "Journal of the American Statistical Association, 104(488):1504-1511.",
                sep="")
          )
 

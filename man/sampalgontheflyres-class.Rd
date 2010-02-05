@@ -35,7 +35,6 @@ Class \code{"\linkS4class{sampalgres}"}, directly.
   with Uniformly Bounded Resampling Risk. To appear in JASA.
 }
 \author{ Axel Gandy }
-\note{ ~~further notes~~ }
 
 
 \seealso{

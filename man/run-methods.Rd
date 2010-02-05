@@ -22,9 +22,9 @@
 \section{Methods}{
 \describe{
 
-\item{alg = "sampalgPrecomp"}{ ~~describe this method here }
+\item{alg = "sampalgPrecomp"}{ the algorithm to be used }
 
-\item{alg = "sampalgonthefly"}{ ~~describe this method here }
+\item{alg = "sampalgonthefly"}{ the algorithm to be used }
 }}
 \examples{
 alg<-getalgonthefly()

@@ -27,7 +27,7 @@ simctest(gensample, level=0.05, epsilon=1e-3, maxsteps=1e4)
   Gandy, A. (2009) Sequential Implementation of Monte Carlo Tests 
   with Uniformly Bounded Resampling Risk. To appear in JASA.
 }
-\seealso{}
+
 
 \examples{
   #Example from Davison&Hinkley section 11.4, p. 534
@@ -54,4 +54,4 @@ simctest(gensample, level=0.05, epsilon=1e-3, maxsteps=1e4)
 
 }
 \author{Axel Gandy}
-\keyword{}
+
