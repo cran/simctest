@@ -1,30 +1,22 @@
 \documentclass{article}
 %\VignetteIndexEntry{Short Introduction}
 
-
 \usepackage{hyperref}
 
 \usepackage{natbib}
 
-\title{R-package ``seqampl''\\ A Short Introduction}
+\title{R-package ``simctest''\\ A Short Introduction}
 
-\author{Axel Gandy}
+\author{Axel Gandy and Patrick Rubin-Delanchy}
 \begin{document}
 \maketitle
 
-
-
-This document describes briefly how to use the
-R-package which implements
-the algorithm for ``Sequential implementation of monte carlo tests with uniformly bounded resampling risk.'' based on \cite{gandy06:Resampling}.
+This document describes briefly how to use the R-package which implements the methods from ``Sequential implementation of Monte Carlo tests with uniformly bounded resampling risk'' and ``An algorithm to compute the power of Monte Carlo tests with guaranteed precision'', based on \cite{gandy06:Resampling} and \cite{gandy11:mcp}.
 
 
 
 
 \section{Installation}
-
-
-
 The installation is as for most R-packages that do not 
 reside in CRAN. The general procedure is  described
 in the Section 6 on ``Add-on packages'' in the
@@ -32,8 +24,6 @@ R Manual on Istallation and Administration:\\
 \url{http://cran.r-project.org/doc/manuals/R-admin.html}.
 
 The following is merely an adaptation of those procedures to our package.
-
-
 
 % \subsection{Windows}
 % \label{sec:win}
@@ -46,18 +36,16 @@ The following is merely an adaptation of those procedures to our package.
 
 \subsection{Linux/Unix}
 
-
-
 If you do not have write access to the package repository:
 \begin{enumerate}
-\item Download the package ``simctest\_1.0-0.tar.gz'' and
+\item Download the package ``simctest\_1.0-3.tar.gz'' and
   place it into your home directory.
 \item Issue the following commands:
 \begin{verbatim}
 echo ".libPaths(\"$HOME/Rlibrary\")" >$HOME/.Rprofile
 R CMD INSTALL -L $HOME/Rlibrary simctest_1.0-0.tar.gz
 \end{verbatim}
-\item You may now delete the file ``simctest\_1.0-0.tar.gz''.
+\item You may now delete the file ``simctest\_1.0-3.tar.gz''.
 \end{enumerate}
 
 
@@ -66,7 +54,7 @@ R CMD INSTALL -L $HOME/Rlibrary simctest_1.0-0.tar.gz
 
 \section{Usage}
 
-Obviously, the pacakge is loaded by typing
+Obviously, the package is loaded by typing
 <<>>=
 library(simctest)
 @ 
@@ -76,32 +64,31 @@ This document can be accessed via
 vignette("simctest-intro")
 @ 
 
-Documentation of the most useful command can be obtained as follows:
+Documentation of the most useful commands can be obtained as follows:
 \begin{verbatim}
 > ? simctest
+> ? mcp
 \end{verbatim}
 
-The following is an artificial example.  By default the algorithm will
-report back after at most 10000 steps, 
-work with a threshold of $\alpha=0.05$ and use the spending sequence
+\subsection{Implementing a Monte Carlo test}
+The following is an artificial example.  By default the algorithm will report back after at most 10000 steps, work with a threshold of $\alpha=0.05$ and use the spending sequence
 $$
 \epsilon_n=0.001\frac{n}{1000+n}.  
 $$
 
-A simple example of a test with true  p-value $0.07$.
+A simple example of a test with true p-value $0.07$.
 
 <<>>=
 res <- simctest(function() runif(1)<0.07);
 res
 @ 
 
-One can also obtain a  confidence interval (wrt the resampling procedure) 
-of the computed $p$-value. By default a  95\% confidence interval is computed.
+One can also obtain a  confidence interval (wrt the resampling procedure) of the computed $p$-value. By default a  95\% confidence interval is computed.
 <<>>=
 confint(res)
 @ 
 
-\subsection{Behaviour at the Threshold}
+\subsubsection{Behaviour at the Threshold}
 
 Next, consider an example where the true p-value is precisely equal to the threshold $\alpha$.
 Here, we will expect that the algorithm stops only with probability $2\epsilon=0.002$.
@@ -121,7 +108,7 @@ res
 
 
 
-\subsection{A simple bootstrap test}
+\subsubsection{A simple bootstrap test}
 An example from \cite[section 11.4, p. 534]{davison1997bma}:
 <<>>=
 data(fir,package="boot")
@@ -141,31 +128,92 @@ obs<-fir.fun(fir)
 simctest(resampl)
 @ 
 
+% \subsubsection{Computing the power of a test}
+% <<>>=
+% n <- 10
+% system.time(replicate(1000, {obs<-mean(rnorm(n)+0.01);simctest(function() mean(rnorm(n))>obs,maxsteps=1000)}));
+% @ 
+% Compared with the naive approach:
+% <<>>=
+% system.time(replicate(1000, {obs<-mean(rnorm(n)+0.01);mean(replicate(1000, mean(rnorm(n))>obs))}));
+% @ 
+
+% To reduce the overhead of computing the boundaries, they can be pre-computed.
+% <<>>=
+% alg <- getalgprecomp()
+% system.time(replicate(1000, {obs<-mean(rnorm(n)+0.01);run(alg,function() mean(rnorm(n))>obs,maxsteps=1000)}));
+% @ 
+
+% For comparison purposes, the same without  without pre-computation:
+% <<>>=
+% alg <- getalgonthefly()
+% system.time(replicate(1000, {obs<-mean(rnorm(n)+0.01);run(alg,function() mean(rnorm(n))>obs,maxsteps=1000)}));
+% @ 
+
 \subsection{Computing the power of a test}
+\subsubsection{Setup}
+The user will have to create a function that represents the power computation problem. Specifically, it is a function that returns \emph{binary stream} representing replicates of $T \geq t$ for one dataset (if the test rejects for large values of the observed test), where $t$ is the observed test statistic for that dataset, and $T$ is its replicate under the null hypothesis. Example: permutation test from \cite{boos00}:
 <<>>=
-n <- 10
-system.time(replicate(1000, {obs<-mean(rnorm(n)+0.01);simctest(function() mean(rnorm(n))>obs,maxsteps=1000)}));
-@ 
-Compared with the naive approach:
+genstream <- function(){
+  D <- list(group1 = rnorm(8, mean=0), group2 = rnorm(4, mean=0.5))
+  t <- mean(D$group2) - mean(D$group1)
+  stream <- function(){
+    group <- (c(D$group1, D$group2))[sample.int(12)]
+    T <- mean(group[9:12]) - mean(group[1:8])
+    T >= t      
+  }    
+}
+@
+
+
+\subsubsection{Making things go faster}
+Users are best advised to devise a procedure by which streams can be generated in batches.
+\begin{verbatim}
+genstream <- function(){
+     ...
+     function(N){
+        ...
+        T >= t ##T a vector of test replicates
+     }
+}
+\end{verbatim}
+
+For testing purposes, in the following we will use an example with power 0.05:
 <<>>=
-system.time(replicate(1000, {obs<-mean(rnorm(n)+0.01);mean(replicate(1000, mean(rnorm(n))>obs))}));
+genstream <- function(){p <- runif(1); function(N){runif(N) <= p}}
 @ 
 
-To reduce the overhead of computing the boundaries, they can be pre-computed.
+\subsubsection{Default settings}
+In the default settings reports is TRUE, and on-screen reports on the progress are shown. However, for this demonstration we explicitly set reports to FALSE. (The on-screen reports print backspaces in order to reprint over the same line, which can cause issues on some platforms.)
+
+In the default settings, the confidence interval returned will have length 0.02 if it contains at least one value smaller than 0.05 or at least one value larger 0.95, and a confidence interval not greater than 0.1 otherwise.
 <<>>=
-alg <- getalgprecomp()
-system.time(replicate(1000, {obs<-mean(rnorm(n)+0.01);run(alg,function() mean(rnorm(n))>obs,maxsteps=1000)}));
+res<-mcp(genstream, options=list(reports=FALSE))
+res
 @ 
 
-For comparison purposes, the same without  without pre-computation:
+
+
+\subsubsection{Fixed delta}
+If we want a fixed CI length no matter what, just set delta, e.g.
 <<>>=
-alg <- getalgonthefly()
-system.time(replicate(1000, {obs<-mean(rnorm(n)+0.01);run(alg,function() mean(rnorm(n))>obs,maxsteps=1000)}));
+res<-mcp(genstream, delta=0.05, options=list(reports=FALSE))
+res
 @ 
 
+\subsubsection{Make your own adaptive delta}
+If the default adaptive delta is not your taste, we suggest using the provided template:
+<<>>=
+res <- mcp(genstream, options=list(reports=FALSE, 
+                        deltamid=mkdeltamid(mindelta=0.02, maxdelta=1, llim=0, rlim=0.9),
+                        epsilon=0.0001))
+res
+@ 
 
+Here the confidence interval returned will have length 0.02 if it contains at least one value smaller than 0 (impossible) or at least one value larger than 0.9, and a confidence interval not greater than 1 otherwise. Basically, this means we only care about the power if it is higher than 0.9. The above example should finished quite early, since it does not take many samples before it can be established that the power is not above 0.9 (it is 0.05).
 
-
+\subsubsection{Interrupting}
+In the main loop, the algorithm can be interrupted manually. If everything goes well, the method should still return the confidence interval computed so far.
 
 
 

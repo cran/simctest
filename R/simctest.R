@@ -180,18 +180,65 @@ setGeneric("cont",def=function(data,steps) {standardGeneric("cont")})
 setMethod("cont", signature(data="sampalgres"),
           function(data,steps) {
             if (!is.na(data@p.value)) return(data);
+            if (steps <=0){return(data)}
             pos <- data@pos
-            for (i in (data@steps+1):(data@steps+steps)){
-              if (i>data@alg@internal$len) extendbounds(data@alg,max(data@alg@internal$len*1.5,100));
-              pos <- pos+data@gen()
+            if (length(formals(data@gen))==0){
+              for (i in (data@steps+1):(data@steps+steps)){
+                if (i>data@alg@internal$len) extendbounds(data@alg,max(data@alg@internal$len*1.5,100));
+                pos <- pos+data@gen()
                 if (pos>=data@alg@internal$U[i]){
-                  return(new("sampalgres",p.value=pos/i,steps=i,pos=pos,alg=data@alg));
+                  data@p.value=pos/i;
+                  data@steps=i
+                  data@pos=pos
+                  data@gen=function(){}
+                  return(data)
+                  #return(new("sampalgres",p.value=pos/i,steps=i,pos=pos,alg=data@alg));
                 }
-              if (pos<=data@alg@internal$L[i]){
-                return(new("sampalgres",p.value=pos/i,steps=i,pos=pos,alg=data@alg));
+                if (pos<=data@alg@internal$L[i]){
+                  data@p.value=pos/i;
+                  data@steps=i;
+                  data@pos=pos;
+                  data@gen=function(){}
+                  return(data)
+                  #return(new("sampalgres",p.value=pos/i,steps=i,pos=pos,alg=data@alg));
+                }
+              }
+            }else{            ## taking larger steps
+              if (is.symbol(formals(data@gen)[[1]])){
+                batchsize <- steps
+              }else{
+                batchsize <- formals(data@gen)[[1]]
+              }
+              i <- data@steps
+              while (i < data@steps+steps){                
+                batchsize <- min(batchsize, data@steps+steps-i)
+                if ((i+batchsize)>data@alg@internal$len) extendbounds(data@alg,max(i+batchsize,data@alg@internal$len*1.5,100));
+                
+                posvec <- pos+cumsum(data@gen(batchsize))
+                U <- data@alg@internal$U[(i+1):(i+batchsize)]
+                L <- data@alg@internal$L[(i+1):(i+batchsize)]
+                stopind <- (U<=posvec|L>=posvec)
+                if (any(stopind)){
+                  stopind <- min(which(stopind))
+                  i<- i+stopind
+                  pos <- posvec[stopind]
+
+                  data@p.value=pos/i
+                  data@steps=i
+                  data@pos=pos
+                  data@gen=function(){}
+                  return(data)
+                  #return(new("sampalgres",p.value=pos/i,steps=i,pos=pos,alg=data@alg));
+                }
+                pos <- posvec[batchsize]
+                i <- i+ batchsize
               }
             }
-            return(new("sampalgres",p.value=as.double(NA),steps=i,pos=pos,alg=data@alg,gen=data@gen));
+            data@p.value=as.double(NA)
+            data@steps=i
+            data@pos=pos
+            return(data)
+            #return(new("sampalgres",p.value=as.double(NA),steps=i,pos=pos,alg=data@alg,gen=data@gen));
           }
           )
 
@@ -336,7 +383,8 @@ setClass("sampalgontheflyres",
 
 setMethod("cont", signature(data="sampalgontheflyres"),
           function(data,steps){
-            if (!is.na(data@p.value))return(data);            
+            if (!is.na(data@p.value))return(data);
+            if (steps<=0){return(data)}
             U <- data@U
             L <- data@L
             pos <- data@pos

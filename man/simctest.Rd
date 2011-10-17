@@ -54,4 +54,3 @@ simctest(gensample, level=0.05, epsilon=1e-3, maxsteps=1e4)
 
 }
 \author{Axel Gandy}
-
