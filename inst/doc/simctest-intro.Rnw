@@ -109,23 +109,36 @@ res
 
 
 \subsubsection{A simple bootstrap test}
-An example from \cite[section 11.4, p. 534]{davison1997bma}:
+An example from \cite{gandy06:Resampling}:
 <<>>=
-data(fir,package="boot")
-fir.mle <- c(sum(fir$count), nrow(fir))
-fir.gen <- function(data, mle){
-  d<-data
-  y <- sample(x=mle[2],size=mle[1],replace=TRUE)
-  d$count <- tabulate(y,mle[2])
-  d
-}
-fir.fun <- function(data)
-  (nrow(data)-1)*var(data$count)/mean(data$count)
-resampl <- function(){
-  obs<fir.fun(fir.gen(data=fir,mle=fir.mle))
-}
-obs<-fir.fun(fir)
-simctest(resampl)
+  dat <- matrix(nrow=5,ncol=7,byrow=TRUE,
+                c(1,2,2,1,1,0,1, 2,0,0,2,3,0,0, 0,1,1,1,2,7,3, 1,1,2,0,0,0,1, 0,1,1,1,1,0,0))
+  loglikrat <- function(data){
+    cs <- colSums(data)
+    rs <- rowSums(data)
+    mu <- outer(rs,cs)/sum(rs)
+    2*sum(ifelse(data<=0.5, 0,data*log(data/mu)))
+  }
+  resample <- function(data){
+    cs <- colSums(data)
+    rs <- rowSums(data)
+    n <- sum(rs)
+    mu <- outer(rs,cs)/n/n
+    matrix(rmultinom(1,n,c(mu)),nrow=dim(data)[1],ncol=dim(data)[2])
+  }
+  t <- loglikrat(dat);
+
+  # function to generate samples
+  gen <- function(){loglikrat(resample(dat))>=t}
+
+  #using simctest
+  simctest(gen,maxsteps=10000)
+
+  #now trying simctest.cont
+  res <- simctest(gen,maxsteps=500)
+  res
+
+  cont(res,20000)
 @ 
 
 % \subsubsection{Computing the power of a test}

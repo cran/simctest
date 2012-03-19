@@ -8,7 +8,7 @@ getalgprecomp <- function(level=0.05,epsilon=1e-3,halfspend=1000){
   sampalg <- new("sampalgPrecomp",internal=new.env());
   evalq({
     spending <-  function(n) {epsilon*n/(n+halfspend)};
-  },env=sampalg@internal)
+  },envir=sampalg@internal)
   sampalg@internal$level <- level
   sampalg@internal$epsilon <- epsilon
   sampalg@internal$halfspend <- halfspend
@@ -339,7 +339,7 @@ getalgonthefly <- function(level=0.05,epsilon=1e-3,halfspend=1000){
   sampalg <- new("sampalgonthefly",internal=new.env());
   evalq({
     spending <-  function(n) {epsilon*n/(n+halfspend)};
-  },env=sampalg@internal)
+  },envir=sampalg@internal)
   sampalg@internal$level <- level
   sampalg@internal$epsilon <- epsilon
   sampalg@internal$halfspend <- halfspend
