@@ -8,12 +8,14 @@
   Constructor for class `mmctest'.
 }
 \usage{
- mmctest(epsilon=0.01, threshold=0.1, h)
+ mmctest(epsilon=0.01, threshold=0.1, r=10000, h)
 }
 \arguments{
   \item{epsilon}{threshold for testing.
   }
   \item{threshold}{threshold for testing.
+  }
+  \item{r}{parameter of the spending sequence, see vignette
   }
   \item{h}{reference to a multiple testing function of the
 form function(p, threshold) which returns the set of
@@ -22,7 +24,7 @@ rejected indices.
 }
 \section{Methods}{
   \describe{
-    \item{mmctest(epsilon=0.01, threshold=0.1, h)}{ returns object of type `mmctest'. }   
+    \item{mmctest(epsilon=0.01, threshold=0.1, r=10000, h)}{ returns object of type `mmctest'. }   
   }
 }
 \examples{

@@ -77,27 +77,26 @@ mmctSampler <- function(f, num, data=NULL) {
 
 # class mmctestres
 # exportMethods: cont, show, pEstimate
-setClass("mmctestres", contains="sampalgPrecomp", representation=representation(internal="environment", epsilon="numeric", threshold="numeric", h="function",
-gensample="mmctSamplerGeneric", g="numeric", num="numeric", A="numeric", B="numeric", C="numeric"))
+setClass("mmctestres", contains="sampalgPrecomp", representation=representation(internal="environment", epsilon="numeric", threshold="numeric", r="numeric",
+h="function", gensample="mmctSamplerGeneric", g="numeric", num="numeric", A="numeric", B="numeric", C="numeric"))
 
 setGeneric("mainalg", def=function(obj, stopcrit){standardGeneric("mainalg")})
 setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 
-    m <- getNumber(obj@gensample);
-    pu <- rep(0, m);
-    pl <- rep(0, m);
-    k <- 1000;
-    it <- 0;
-    timer <- proc.time()[[3]];
-
     g <- obj@g;
     num <- obj@num;
     batchN <- obj@internal$batchN;
-    currentBatch <- max(batchN);
+    pu <- obj@internal$pu;
+    pl <- obj@internal$pl;
 
     A <- obj@A;
     B <- obj@B;
     C <- obj@C;
+
+    m <- getNumber(obj@gensample);
+    currentBatch <- max(batchN);
+    it <- 0;
+    timer <- proc.time()[[3]];
     copying <- 0;
 
     tryCatch({
@@ -105,12 +104,15 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 
 	# sample all \hat{p}_i in B
 	currentBatch <- floor(1.25*currentBatch);
+	if(currentBatch > 100000) { currentBatch <- 100000; }
 	batchN[B] <- currentBatch;
 	g[B] <- g[B] + getSamples(obj@gensample, B, currentBatch);
 	num[B] <- num[B] + batchN[B];
 
 	# compute upper "exact" confidence level (Clopper-Pearson)
-	a <- (num/(num+k) - (num-batchN)/(num-batchN+k)) * (1-(1-obj@epsilon)**(1/m));
+	a <- (num/(num+obj@r) - (num-batchN)/(num-batchN+obj@r)) * (obj@epsilon/length(B));
+	pu_ <- pu;
+	pl_ <- pl;
 	qindex <- (g>0) & (g<num);
 	pu[qindex] <- 1 - qbeta(a[qindex]/2, num[qindex]-g[qindex], g[qindex]+1);
 	pu[g==0] <- 1-(a[g==0]/2)**(1/num[g==0]);
@@ -120,6 +122,8 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	pl[qindex] <- 1 - qbeta(1-a[qindex]/2, num[qindex]+1-g[qindex], g[qindex]);
 	pl[g==0] <- 0;
 	pl[g==num] <- (a[g==num]/2)**(1/num[g==num]);
+	pu[setdiff(1:m,B)] <- pu_[setdiff(1:m,B)];
+	pl[setdiff(1:m,B)] <- pl_[setdiff(1:m,B)];
 
 	A <- which(obj@h(pu, obj@threshold));
 	C <- which(obj@h(pl, obj@threshold));
@@ -129,6 +133,8 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	obj@g <- g;
 	obj@num <- num;
 	obj@internal$batchN <- batchN;
+	obj@internal$pu <- pu;
+	obj@internal$pl <- pl;
 
 	obj@A <- A;
 	obj@B <- B;
@@ -146,6 +152,8 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	obj@g <- g;
 	obj@num <- num;
 	obj@internal$batchN <- batchN;
+	obj@internal$pu <- pu;
+	obj@internal$pl <- pl;
 
 	obj@A <- A;
 	obj@B <- B;
@@ -261,6 +269,7 @@ setMethod("run", signature(alg="mmctest", gensample="mmctSamplerGeneric"), funct
 
     obj@epsilon <- alg@internal$epsilon;
     obj@threshold <- alg@internal$threshold;
+    obj@r <- alg@internal$r;
     obj@h <- alg@internal$h;
     obj@gensample <- gensample;
 
@@ -268,6 +277,8 @@ setMethod("run", signature(alg="mmctest", gensample="mmctSamplerGeneric"), funct
     obj@g <- rep(0, m);
     obj@num <- rep(0, m);
     obj@internal$batchN <- rep(10, m);
+    obj@internal$pu <- rep(0, m);
+    obj@internal$pl <- rep(0, m);
 
     obj@A <- 0;
     obj@B <- 1:m;
@@ -278,11 +289,12 @@ setMethod("run", signature(alg="mmctest", gensample="mmctSamplerGeneric"), funct
 )
 
 # pseudo constructor
-mmctest <- function(epsilon=0.01, threshold=0.1, h) {
+mmctest <- function(epsilon=0.01, threshold=0.1, r=10000, h) {
 
   obj <- new("mmctest");
   obj@internal$epsilon=epsilon;
   obj@internal$threshold=threshold;
+  obj@internal$r=r;
   obj@internal$h=h;
   return(obj);
 }

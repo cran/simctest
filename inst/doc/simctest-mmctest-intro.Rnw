@@ -19,10 +19,8 @@ options(width=80)
 \author{Axel Gandy and Georg Hahn}
 
 
-
 \begin{document}
 \maketitle
-
 
 
 This document describes briefly how to use the class ``mmctest'', included
@@ -35,15 +33,10 @@ The class can be used to evaluate the statistical significance of each
 hypothesis in a multiple testing problem.
 
 
-
-
 \section{Installation}
 The functions described in this document are included in the
 R-package ``simctest''. Please see the documentation of
 ``simctest'' on how to install the package.
-
-
-
 
 
 \section{Usage}
@@ -64,6 +57,7 @@ Documentation of the most useful commands can be obtained as follows:
 > ? mcp
 > ? mmctest
 \end{verbatim}
+
 
 \subsection{Implementing a Monte Carlo multiple testing problem}
 The following is an artificial example.
@@ -167,19 +161,27 @@ s <- new("mmctSampler1", data=c(rep(0,100),runif(400)));
 @
 
 
-
 \subsubsection{A simple run of the algorithm}
 After having specified the sampler, the main algorithm can
 be executed.
 This is done by creating an object of type
 \texttt{mmctest} using the pseudo-constructor
 \begin{center}
-\texttt{mmctest(epsilon=0.01, threshold=0.1, h)},
+\texttt{mmctest(epsilon=0.01, threshold=0.1, r=10000, h)},
 \end{center}
-where \texttt{epsilon} is the overall error one is willing to spend
-(see \cite{gandy12:mmct}), \texttt{threshold} is the
-multiple testing threshold and $h$ is the multiple testing
-procedure.
+where \texttt{epsilon} is the overall error
+on the classification being correct one is willing to spend
+(see \cite{gandy12:mmct}) and \texttt{threshold} is the
+multiple testing threshold. The \texttt{MMCTest} algorithm
+uses a "spending sequences" which controls
+how the overall error probability
+is spent on each of the $m$ hypotheses in each iteration
+(see \cite{gandy12:mmct}).
+The parameter \texttt{r} with default value $r=10000$
+controls after which number of samples half the
+error probability has been spent and
+can be chosen arbitrarily.
+Finally, $h$ is the multiple testing procedure.
 
 Any function
 \begin{center}

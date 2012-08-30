@@ -15,6 +15,7 @@ are of type mmctestres.
     \item{\code{internal}:}{Object of class \code{"environment"}  }
     \item{\code{epsilon}:}{Object of class \code{"numeric"}  }
     \item{\code{threshold}:}{Object of class \code{"numeric"}  }
+    \item{\code{r}:}{Object of class \code{"numeric"}  }
     \item{\code{h}:}{Object of class \code{"function"}  }
     \item{\code{gensample}:}{Object of class \code{"mmctSamplerGeneric"}  }
     \item{\code{g}:}{Object of class \code{"numeric"}  }
@@ -36,8 +37,8 @@ are of type mmctestres.
 	 }
 }
 \references{
-  Gandy, A., and Hahn, G. (2012) MMCTest - A Safe Algorithm
-for Implementing Multiple Monte Carlo Tests. To appear in JASA.}
+  Gandy, A. and Hahn, G. (2013) MMCTest - A Safe Algorithm
+for Implementing Multiple Monte Carlo Tests. arXiv:1209.3963}
 \author{ Axel Gandy and Georg Hahn }
 
 \examples{

@@ -18,8 +18,8 @@ Objects can be created by calls of the form \code{mmctest(h=...)}.
 	 }
 }
 \references{
-  Gandy, A., and Hahn, G. (2012) MMCTest - A Safe Algorithm
-for Implementing Multiple Monte Carlo Tests. To appear in JASA.}
+  Gandy, A. and Hahn, G. (2013) MMCTest - A Safe Algorithm
+for Implementing Multiple Monte Carlo Tests. arXiv:1209.3963}
 \author{ Axel Gandy and Georg Hahn }
 
 \examples{

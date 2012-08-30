@@ -40,9 +40,9 @@ setMethod("extendbounds", signature(alg="sampalgPrecomp"),
                 Sn <- c()
                 prob <- c()
                 preverr=c(0.,0.);
-                porig <-c(1-level,level);
                 len <- 1;
               },envir=alg@internal)
+              assign("porig",c(1-get("level",envir=alg@internal),get("level",envir=alg@internal)), envir=alg@internal)
             }
             n <- as.integer(max(n,alg@internal$len))
             if (n>alg@internal$len){
