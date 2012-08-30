@@ -15,7 +15,7 @@
 }
 \section{Methods}{
   \describe{
-    \item{hBH(p, threshold)}{ applies the Benjamini-Hochberg procedure to p-values p with given threshold, returns rejected indices }   
+    \item{hBH(p, threshold)}{applies the Benjamini-Hochberg procedure to p-values p with given threshold, returns rejected indices}
   }
 }
 \examples{

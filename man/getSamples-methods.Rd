@@ -17,7 +17,7 @@
   \item{ind}{vector containing the indices of hypotheses
 for which further samples are requested.
   }
-  \item{n}{requested number of further samples for each hypothesis in vector `ind'.
+  \item{n}{vector containing number of further samples for each hypothesis in vector `ind'.
   }
 }
 \section{Methods}{
@@ -26,7 +26,7 @@ for which further samples are requested.
   }
 }
 \examples{
-  fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n)<=data[ind[i]]));
+  fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n[i])<=data[ind[i]]));
   i <- mmctSampler(fun,num=500,data=runif(500));
   samples <- getSamples(i, c(1,2), c(2,2));
 }

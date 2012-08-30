@@ -15,7 +15,7 @@
 }
 \section{Methods}{
   \describe{
-    \item{hBonferroni(p, threshold)}{ performs independent multiple testing using the Bonferroni correction at given threshold, returns rejected indices }   
+    \item{hBonferroni(p, threshold)}{performs independent multiple testing using the Bonferroni correction at given threshold, returns rejected indices}
   }
 }
 \examples{

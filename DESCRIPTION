@@ -1,5 +1,5 @@
 Package: simctest
-Version: 2.2
+Version: 2.3
 Date: 2012-08-30
 Title: Safe implementation of Monte Carlo tests.
 Author: Axel Gandy <a.gandy@imperial.ac.uk> with contributions from
@@ -15,6 +15,6 @@ License: GPL (>= 2)
 URL: http://www2.imperial.ac.uk/~agandy
 Collate: mcp.R simctest.R mmctest.R
 Repository: CRAN
-Packaged: 2013-02-20 14:40:30 UTC; agandy
+Packaged: 2013-06-10 13:11:08 UTC; dell
 NeedsCompilation: yes
-Date/Publication: 2013-02-20 16:28:14
+Date/Publication: 2013-06-10 18:41:52

@@ -11,8 +11,10 @@
  mmctSampler(f, num, data=NULL)
 }
 \arguments{
-  \item{f}{a function f(ind,n,data) which returns "n" (number) new samples
-for each hypothesis in vector "ind". The data stored in the data slot of class
+  \item{f}{a function f(ind,n,data) which for every hypothesis ind[i]
+in vector "ind" returns n[i] new samples and returns the number of
+exceedances, where i=1...length(ind).
+The data stored in the data slot of class
 "mmctSampler" is also passed on to "f".
   }
   \item{num}{number of hypotheses.
@@ -27,7 +29,7 @@ for each hypothesis in vector "ind". The data stored in the data slot of class
   }
 }
 \examples{
-  fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n)<=data[ind[i]]));
+  fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n[i])<=data[ind[i]]));
   i <- mmctSampler(fun,num=500,data=runif(500));
 }
 \keyword{methods}

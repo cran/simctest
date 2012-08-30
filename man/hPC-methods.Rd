@@ -15,7 +15,7 @@
 }
 \section{Methods}{
   \describe{
-    \item{hPC(p, threshold)}{ applies the modification by Pounds&Cheng to p-values p with given threshold, returns rejected indices }   
+    \item{hPC(p, threshold)}{applies the modification by Pounds&Cheng to p-values p with given threshold, returns rejected indices}
   }
 }
 \examples{

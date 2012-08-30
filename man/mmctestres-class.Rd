@@ -23,6 +23,7 @@ are of type mmctestres.
     \item{\code{A}:}{Object of class \code{"numeric"}  }
     \item{\code{B}:}{Object of class \code{"numeric"}  }
     \item{\code{C}:}{Object of class \code{"numeric"}  }
+    \item{\code{thompson}:}{Object of class \code{"logical"}  }
   }
 }
 \section{Methods}{
@@ -42,7 +43,7 @@ for Implementing Multiple Monte Carlo Tests. arXiv:1209.3963}
 \author{ Axel Gandy and Georg Hahn }
 
 \examples{
-  fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n)<=data[ind[i]]));
+  fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n[i])<=data[ind[i]]));
   i <- mmctSampler(fun,num=500,data=runif(500));
   a <- mmctest(h=hBH);
   a <- run(a, i, maxsteps=list(maxnum=1000000,undecided=10));

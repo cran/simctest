@@ -7,7 +7,7 @@
 \title{Methods for class `mmctestres' and `mmctest', Package `simctest'}
 \description{
   Function which returns a list containing indices of rejected hypotheses (vector `rejected'),
-nonrejected hypotheses (vector `nonrejected') and undecided hypotheses (vector `undecided').
+nonrejected hypotheses (vector `nonrejected') and undecided hypotheses (vector `undecided')
 }
 \usage{
  testResult(obj)
@@ -22,7 +22,7 @@ nonrejected hypotheses (vector `nonrejected') and undecided hypotheses (vector `
   }
 }
 \examples{
-  fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n)<=data[ind[i]]));
+  fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n[i])<=data[ind[i]]));
   i <- mmctSampler(fun,num=500,data=runif(500));
   a <- mmctest(h=hBH);
   a <- run(a, i, maxsteps=list(maxnum=1000000,undecided=10));

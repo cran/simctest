@@ -6,8 +6,9 @@
 \description{Wrapper-Class for "mmctestInterfaceGeneric", takes a function, the number
 of hypotheses and returns derived object of class "mmctestInterfaceGeneric".
 Class provides a slot for additional data.
-The function f(ind,n,data) has to return "n" (number) new samples for each hypothesis
-in vector "ind". The data stored in the data slot of class "mmctSampler" is also
+The function f(ind,n,data) has to return n[i] new samples for each hypothesis ind[i]
+in vector "ind", where i=1...length(ind).
+The data stored in the data slot of class "mmctSampler" is also
 passed on to "f".}
 \section{Objects from the Class}{
 Objects can be created by calls of the form \code{mmctSampler(f=...,num=...,data=...)}.
@@ -31,7 +32,7 @@ for Implementing Multiple Monte Carlo Tests. arXiv:1209.3963}
 \author{ Axel Gandy and Georg Hahn }
 
 \examples{
-  fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n)<=data[ind[i]]));
+  fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n[i])<=data[ind[i]]));
   i <- mmctSampler(fun,num=500,data=runif(500));
 }
 \keyword{classes}

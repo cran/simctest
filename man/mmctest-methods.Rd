@@ -8,10 +8,10 @@
   Constructor for class `mmctest'.
 }
 \usage{
- mmctest(epsilon=0.01, threshold=0.1, r=10000, h)
+ mmctest(epsilon=0.01, threshold=0.1, r=10000, h, thompson=F)
 }
 \arguments{
-  \item{epsilon}{threshold for testing.
+  \item{epsilon}{probability of any misclassification one is willing to tolerate
   }
   \item{threshold}{threshold for testing.
   }
@@ -21,6 +21,8 @@
 form function(p, threshold) which returns the set of
 rejected indices.
   }
+  \item{thompson}{if set to true, mmctest will use a Thompson strategy to draw further samples
+  }
 }
 \section{Methods}{
   \describe{
@@ -28,7 +30,7 @@ rejected indices.
   }
 }
 \examples{
-  fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n)<=data[ind[i]]));
+  fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n[i])<=data[ind[i]]));
   i <- mmctSampler(fun,num=500,data=runif(500));
   a <- mmctest(h=hBH);
   a <- run(a, i, maxsteps=list(maxnum=1000000,undecided=10));

@@ -37,6 +37,9 @@ hBonferroni <- function(p, threshold) {
 # class mmctSamplerGeneric
 # derive a class from mmctSamplerGeneric to implement the interface used to draw new samples
 # or use class mmctSampler to directly pass a function and the number of hypotheses
+# getSamples has to be implemented in such a way as to draw n[i] new samples for each
+# hypothesis ind[i], where i=1...length(ind) and return the number of exceedances
+# getNumber has to return the number of hypotheses
 setClass("mmctSamplerGeneric")
 setGeneric("getSamples", def=function(obj, ind, n){standardGeneric("getSamples")})
 setGeneric("getNumber", def=function(obj){standardGeneric("getNumber")})
@@ -46,7 +49,7 @@ setGeneric("getNumber", def=function(obj){standardGeneric("getNumber")})
 
 
 # class mmctSampler
-# directly pass a function "f" and the number of hypotheses "n", class has a slot for additional data
+# directly pass a function "f" and the number of hypotheses "num", class has a slot "data" for additional data
 setClass("mmctSampler", contains="mmctSamplerGeneric", representation=representation(f="function", num="numeric", data="numeric"))
 
 # implemented method
@@ -78,7 +81,7 @@ mmctSampler <- function(f, num, data=NULL) {
 # class mmctestres
 # exportMethods: cont, show, pEstimate
 setClass("mmctestres", contains="sampalgPrecomp", representation=representation(internal="environment", epsilon="numeric", threshold="numeric", r="numeric",
-h="function", gensample="mmctSamplerGeneric", g="numeric", num="numeric", A="numeric", B="numeric", C="numeric"))
+h="function", gensample="mmctSamplerGeneric", g="numeric", num="numeric", A="numeric", B="numeric", C="numeric", thompson="logical"))
 
 setGeneric("mainalg", def=function(obj, stopcrit){standardGeneric("mainalg")})
 setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
@@ -99,14 +102,30 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
     timer <- proc.time()[[3]];
     copying <- 0;
 
+    prior_alpha <- rep(1,m);
+    prior_beta <- rep(1,m);
+
     tryCatch({
       while(length(B)>stopcrit$undecided) {
 
 	# sample all \hat{p}_i in B
 	currentBatch <- floor(1.25*currentBatch);
 	if(currentBatch > 100000) { currentBatch <- 100000; }
-	batchN[B] <- currentBatch;
-	g[B] <- g[B] + getSamples(obj@gensample, B, currentBatch);
+
+	# Thompson Sampling: in each iteration, allocate samples to each undecided hypothesis
+	# proportional to the probability of its p-value being the next one lying above the threshold line
+	# (i.e. use rank of last undecided hypothesis: k = m-|decided to be accepted|);
+	# this approach does not depend on ranks
+	if((obj@thompson==T) && (length(B)<m)) {
+	  # update
+	  prior_alpha <- 1+g;
+	  prior_beta <- 1+num-g;
+	  prob_above_line <- 1-pbeta(sum(obj@h((g+1)/(num+1), obj@threshold))*obj@threshold/m,prior_alpha,prior_beta);
+	  batchN[B] <- floor(prob_above_line[B]/sum(prob_above_line[B])*currentBatch*length(B));
+	}
+	else { batchN[B] <- currentBatch; }
+
+	g[B] <- g[B] + getSamples(obj@gensample, B, batchN[B]);
 	num[B] <- num[B] + batchN[B];
 
 	# compute upper "exact" confidence level (Clopper-Pearson)
@@ -122,9 +141,14 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	pl[qindex] <- 1 - qbeta(1-a[qindex]/2, num[qindex]+1-g[qindex], g[qindex]);
 	pl[g==0] <- 0;
 	pl[g==num] <- (a[g==num]/2)**(1/num[g==num]);
+
+	# intersect confidence intervals and set confidence intervals of unconsidered hypotheses back to last value
+	pu <- pmin(pu_, pu);
+	pl <- pmax(pl_, pl);
 	pu[setdiff(1:m,B)] <- pu_[setdiff(1:m,B)];
 	pl[setdiff(1:m,B)] <- pl_[setdiff(1:m,B)];
 
+	# compute classifications
 	A <- which(obj@h(pu, obj@threshold));
 	C <- which(obj@h(pl, obj@threshold));
 	B <- setdiff(C, A);
@@ -191,7 +215,7 @@ setMethod("show", signature(object="mmctestres"), function(object) {
     m <- getNumber(object@gensample);
     cat(paste("Number of rejected hypotheses: ",length(object@A),"\n",sep=""));
     cat(paste("Number of non-rejected hypotheses: ",length(setdiff(1:m, object@C)),"\n",sep=""));
-    cat(paste("Number of unclassified hypotheses: ",length(object@B),"\n",sep=""));
+    cat(paste("Number of undecided hypotheses: ",length(object@B),"\n",sep=""));
     cat(paste("Total number of samples: ",sum(object@num),"\n",sep=""));
   }
 )
@@ -199,36 +223,16 @@ setMethod("show", signature(object="mmctestres"), function(object) {
 setGeneric("pEstimate", def=function(obj){standardGeneric("pEstimate")})
 setMethod("pEstimate", signature(obj="mmctestres"), function(obj) {
 
-    return(obj@g/obj@num);
+    return((obj@g+1)/(obj@num+1));
   }
 )
 
 setGeneric("confidenceLimits", def=function(obj){standardGeneric("confidenceLimits")})
 setMethod("confidenceLimits", signature(obj="mmctestres"), function(obj) {
 
-    m <- getNumber(obj@gensample);
-    k <- 1000;
-    g <- obj@g;
-    num <- obj@num;
-    batchN <- obj@internal$batchN;
-    pu <- rep(0, m);
-    pl <- rep(0, m);
-
-    # compute upper "exact" confidence level (Clopper-Pearson)
-    a <- (num/(num+k) - (num-batchN)/(num-batchN+k)) * (1-(1-obj@epsilon)**(1/m));
-    qindex <- (g>0) & (g<num);
-    pu[qindex] <- 1 - qbeta(a[qindex]/2, num[qindex]-g[qindex], g[qindex]+1);
-    pu[g==0] <- 1-(a[g==0]/2)**(1/num[g==0]);
-    pu[g==num] <- 1;
-
-    # ...and lower "exact" confidence level (Clopper-Pearson)
-    pl[qindex] <- 1 - qbeta(1-a[qindex]/2, num[qindex]+1-g[qindex], g[qindex]);
-    pl[g==0] <- 0;
-    pl[g==num] <- (a[g==num]/2)**(1/num[g==num]);
-
     l <- list();
-    l$lowerLimits <- pl;
-    l$upperLimits <- pu;
+    l$lowerLimits <- obj@internal$pl;
+    l$upperLimits <- obj@internal$pu;
     return(l);
   }
 )
@@ -250,7 +254,7 @@ setMethod("summary.mmctestres", signature(object="mmctestres"), function(object)
 
     cat(paste("Number of hypotheses: ",getNumber(object@gensample),sep=""));
     cat(strwrap(paste("Indices of rejected hypotheses:", paste(object@A,collapse=" ")),prefix="\n"));
-    cat(strwrap(paste("Indices of unclassified hypotheses:", paste(object@B,collapse=" ")),prefix="\n"));
+    cat(strwrap(paste("Indices of undecided hypotheses:", paste(object@B,collapse=" ")),prefix="\n"));
     cat("\nAll hypotheses not listed are classified as not rejected.\n");
   }
 )
@@ -269,6 +273,7 @@ setMethod("run", signature(alg="mmctest", gensample="mmctSamplerGeneric"), funct
 
     obj@epsilon <- alg@internal$epsilon;
     obj@threshold <- alg@internal$threshold;
+    obj@thompson <- alg@internal$thompson;
     obj@r <- alg@internal$r;
     obj@h <- alg@internal$h;
     obj@gensample <- gensample;
@@ -277,7 +282,7 @@ setMethod("run", signature(alg="mmctest", gensample="mmctSamplerGeneric"), funct
     obj@g <- rep(0, m);
     obj@num <- rep(0, m);
     obj@internal$batchN <- rep(10, m);
-    obj@internal$pu <- rep(0, m);
+    obj@internal$pu <- rep(1, m);
     obj@internal$pl <- rep(0, m);
 
     obj@A <- 0;
@@ -289,11 +294,12 @@ setMethod("run", signature(alg="mmctest", gensample="mmctSamplerGeneric"), funct
 )
 
 # pseudo constructor
-mmctest <- function(epsilon=0.01, threshold=0.1, r=10000, h) {
+mmctest <- function(epsilon=0.01, threshold=0.1, r=10000, h, thompson=F) {
 
   obj <- new("mmctest");
   obj@internal$epsilon=epsilon;
   obj@internal$threshold=threshold;
+  obj@internal$thompson=thompson;
   obj@internal$r=r;
   obj@internal$h=h;
   return(obj);
