@@ -1,4 +1,4 @@
-#source("simctest/R/simctest.r");
+# source("simctest/R/simctest.r");
 
 # mmctest -- Multiple Monte-Carlo Tests
 
@@ -28,6 +28,33 @@ hBonferroni <- function(p, threshold) {
 
   m <- length(p);
   return(p<=threshold/m);
+}
+
+tau <- function(p,threshold) {
+  m <- length(p);
+
+  # step-up
+  t <- threshold/rep(m,m);#Bonferroni
+#   t <- (1:m)/m*threshold;#Simes
+#   t <- threshold/(m+1-1:m);#Hochberg
+#   t <- 1;#Rom
+#   t <- (1:m)/m*threshold;#Benjamini-Hochberg
+#   t <- (1:m)/m*(threshold/sum(1/(1:m)));#Benjamini-Yekutieli
+
+  # step-down
+#   t <- 1-(1-threshold)**(1/(m+1-(1:m)));#Sidak
+#   t <- threshold/(m+1-(1:m));#Holm
+#   t <- threshold/(m+1-(1:m));#Shaffer for a general scenario
+
+  return(t);
+}
+
+hStepUp <- function(p, threshold) {
+  return(rank(p) <= max(c(which(sort(p)<=tau(p,threshold)),-1)) );
+}
+
+hStepDown <- function(p, threshold) {
+  return(rank(p) <= min(c(which(sort(p)>tau(p,threshold)), length(p))) );
 }
 
 
@@ -80,8 +107,8 @@ mmctSampler <- function(f, num, data=NULL) {
 
 # class mmctestres
 # exportMethods: cont, show, pEstimate
-setClass("mmctestres", contains="sampalgPrecomp", representation=representation(internal="environment", epsilon="numeric", threshold="numeric", r="numeric",
-h="function", gensample="mmctSamplerGeneric", g="numeric", num="numeric", A="numeric", B="numeric", C="numeric", thompson="logical"))
+setClass("mmctestres", contains="sampalgPrecomp", representation=representation(internal="environment", epsilon="numeric", threshold="numeric", r="numeric", R="numeric",
+h="function", gensample="mmctSamplerGeneric", g="numeric", num="numeric", A="numeric", B="numeric", C="numeric", thompson="logical", rejprob="numeric"))
 
 setGeneric("mainalg", def=function(obj, stopcrit){standardGeneric("mainalg")})
 setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
@@ -113,15 +140,32 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	if(currentBatch > 100000) { currentBatch <- 100000; }
 
 	# Thompson Sampling: in each iteration, allocate samples to each undecided hypothesis
-	# proportional to the probability of its p-value being the next one lying above the threshold line
-	# (i.e. use rank of last undecided hypothesis: k = m-|decided to be accepted|);
-	# this approach does not depend on ranks
-	if((obj@thompson==T) && (it>0)) {
-	  # update
-	  prior_alpha <- 1+g;
-	  prior_beta <- 1+num-g;
-	  prob_above_line <- 1-pbeta(sum(obj@h((g+1)/(num+1), obj@threshold))*obj@threshold/m,prior_alpha,prior_beta);
-	  batchN[B] <- floor(prob_above_line[B]/sum(prob_above_line[B])*currentBatch*length(B));
+	# proportional to its probability of being randomly classified, i.e. proportional to
+	# min(r_i,1-r_i), where r_i is the empirical probability of H_{0i} being rejected in R repetitions.
+	# The parameter R can be set in the constructor (default value 1000).
+	# Use Residual Sampling to allocate samples with weights min(r_i,1-r_i).
+	if(obj@thompson==T) {
+	  if((stopcrit$maxnum>0) && (stopcrit$maxit>0)) { constantBatch <- floor(stopcrit$maxnum/stopcrit$maxit); }
+	  else { constantBatch <- currentBatch*m; }
+	  if(it>0) {
+	    prior_alpha <- 1+g;
+	    prior_beta <- 1+num-g;
+	    rej <- rowSums( replicate(obj@R, obj@h(rbeta(m,prior_alpha,prior_beta),obj@threshold)) );
+	    sampleprob <- pmin(rej/obj@R,1-rej/obj@R);
+	    
+	    # correction
+	    if(sum(sampleprob)==0) { sampleprob <- rep(1,m); }
+
+	    # residual sampling
+	    wiDelta <- constantBatch*sampleprob/sum(sampleprob);
+	    batchN <- floor(wiDelta);
+	    sampleprob <- wiDelta-batchN;
+	    if(constantBatch-sum(batchN)>0) {
+	      s <- sample(1:m,size=constantBatch-sum(batchN),replace=T,prob=sampleprob);
+	      batchN <- batchN + hist(s, breaks=0:m+0.5, plot=F)$counts;
+	    }
+	  }
+	  else { batchN[B] <- floor(constantBatch/m); }
 	}
 	else { batchN[B] <- currentBatch; }
 
@@ -183,10 +227,16 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	obj@A <- A;
 	obj@B <- B;
 	obj@C <- C;
+	obj@rejprob <- NULL;
 	return(obj);
       }
     }) # end tryCatch
 
+    # update weights/rejection probabilities before termination
+    prior_alpha <- 1+g;
+    prior_beta <- 1+num-g;
+    rej <- rowSums( replicate(obj@R, obj@h(rbeta(m,prior_alpha,prior_beta),obj@threshold)) );
+    obj@rejprob <- rej/obj@R;
     return(obj);
   }
 )
@@ -225,6 +275,13 @@ setGeneric("pEstimate", def=function(obj){standardGeneric("pEstimate")})
 setMethod("pEstimate", signature(obj="mmctestres"), function(obj) {
 
     return((obj@g+1)/(obj@num+1));
+  }
+)
+
+setGeneric("rejProb", def=function(obj){standardGeneric("rejProb")})
+setMethod("rejProb", signature(obj="mmctestres"), function(obj) {
+
+    return(obj@rejprob);
   }
 )
 
@@ -276,6 +333,7 @@ setMethod("run", signature(alg="mmctest", gensample="mmctSamplerGeneric"), funct
     obj@threshold <- alg@internal$threshold;
     obj@thompson <- alg@internal$thompson;
     obj@r <- alg@internal$r;
+    obj@R <- alg@internal$R;
     obj@h <- alg@internal$h;
     obj@gensample <- gensample;
 
@@ -296,13 +354,14 @@ setMethod("run", signature(alg="mmctest", gensample="mmctSamplerGeneric"), funct
 )
 
 # pseudo constructor
-mmctest <- function(epsilon=0.01, threshold=0.1, r=10000, h, thompson=F) {
+mmctest <- function(epsilon=0.01, threshold=0.1, r=10000, h, thompson=F, R=1000) {
 
   obj <- new("mmctest");
   obj@internal$epsilon=epsilon;
   obj@internal$threshold=threshold;
   obj@internal$thompson=thompson;
   obj@internal$r=r;
+  obj@internal$R=R;
   obj@internal$h=h;
   return(obj);
 }

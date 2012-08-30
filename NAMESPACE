@@ -13,5 +13,6 @@ exportClasses("sampalg",
 	      "mmctestres",
 	      "mmctest"
               )
-exportMethods(run,cont,getbounds,show,confint,getU,getL,pEstimate,confidenceLimits,testResult,summary.mmctestres,getSamples,getNumber)
+S3method(summary,mmctestres)
+exportMethods(run,cont,getbounds,show,confint,getU,getL,pEstimate,rejProb,confidenceLimits,testResult,summary.mmctestres,getSamples,getNumber)
 useDynLib("simctest",simctest.extendboundsC=extendbounds)

@@ -1,38 +1,38 @@
 ### R code from vignette source 'simctest-mmctest-intro.Rnw'
 
 ###################################################
-### code chunk number 1: simctest-mmctest-intro.Rnw:12-13
+### code chunk number 1: simctest-mmctest-intro.Rnw:7-8
 ###################################################
 options(width=80)
 
 
 ###################################################
-### code chunk number 2: simctest-mmctest-intro.Rnw:45-46
+### code chunk number 2: simctest-mmctest-intro.Rnw:41-42
 ###################################################
 library(simctest)
 
 
 ###################################################
-### code chunk number 3: simctest-mmctest-intro.Rnw:50-51 (eval = FALSE)
+### code chunk number 3: simctest-mmctest-intro.Rnw:46-47 (eval = FALSE)
 ###################################################
 ## vignette("simctest-mmctest-intro")
 
 
 ###################################################
-### code chunk number 4: simctest-mmctest-intro.Rnw:115-117
+### code chunk number 4: simctest-mmctest-intro.Rnw:111-113
 ###################################################
 fun <- function(ind,n,data)
   sapply(1:length(ind), function(i) sum(runif(n[i])<=data[ind[i]]));
 
 
 ###################################################
-### code chunk number 5: simctest-mmctest-intro.Rnw:129-130
+### code chunk number 5: simctest-mmctest-intro.Rnw:125-126
 ###################################################
 s <- mmctSampler(fun,num=500,data=c(rep(0,100),runif(400)));
 
 
 ###################################################
-### code chunk number 6: simctest-mmctest-intro.Rnw:140-159
+### code chunk number 6: simctest-mmctest-intro.Rnw:136-155
 ###################################################
 # class mmctSampler1, inherited from mmctSamplerGeneric
 setClass("mmctSampler1", contains="mmctSamplerGeneric",
@@ -56,40 +56,40 @@ setMethod("getNumber", signature(obj="mmctSampler1"),
 
 
 ###################################################
-### code chunk number 7: simctest-mmctest-intro.Rnw:163-164
+### code chunk number 7: simctest-mmctest-intro.Rnw:159-160
 ###################################################
 s <- new("mmctSampler1", data=c(rep(0,100),runif(400)));
 
 
 ###################################################
-### code chunk number 8: simctest-mmctest-intro.Rnw:206-208
+### code chunk number 8: simctest-mmctest-intro.Rnw:207-209
 ###################################################
 s <- mmctSampler(fun,num=500,data=c(rep(0,100),runif(400)));
 m <- mmctest(h=hBH);
 
 
 ###################################################
-### code chunk number 9: simctest-mmctest-intro.Rnw:234-236
+### code chunk number 9: simctest-mmctest-intro.Rnw:235-237
 ###################################################
 m <- run(m, s, maxsteps=list(maxnum=1000000,undecided=20));
 m
 
 
 ###################################################
-### code chunk number 10: simctest-mmctest-intro.Rnw:247-248
+### code chunk number 10: simctest-mmctest-intro.Rnw:248-249
 ###################################################
 summary.mmctestres(m)
 
 
 ###################################################
-### code chunk number 11: simctest-mmctest-intro.Rnw:255-257
+### code chunk number 11: simctest-mmctest-intro.Rnw:256-258
 ###################################################
 m <- cont(m, steps=list(undecided=10));
 m
 
 
 ###################################################
-### code chunk number 12: simctest-mmctest-intro.Rnw:277-281
+### code chunk number 12: simctest-mmctest-intro.Rnw:278-282
 ###################################################
 res <- testResult(m);
 res$undecided
@@ -98,7 +98,7 @@ length(res$nonrejected)
 
 
 ###################################################
-### code chunk number 13: simctest-mmctest-intro.Rnw:295-298
+### code chunk number 13: simctest-mmctest-intro.Rnw:296-299
 ###################################################
 estimate <- pEstimate(m);
 lastindex <- length(estimate);
@@ -106,7 +106,7 @@ estimate[lastindex]
 
 
 ###################################################
-### code chunk number 14: simctest-mmctest-intro.Rnw:308-311
+### code chunk number 14: simctest-mmctest-intro.Rnw:309-312
 ###################################################
 l <- confidenceLimits(m);
 l$lowerLimits[lastindex]
@@ -114,7 +114,14 @@ l$upperLimits[lastindex]
 
 
 ###################################################
-### code chunk number 15: simctest-mmctest-intro.Rnw:329-334
+### code chunk number 15: simctest-mmctest-intro.Rnw:361-363
+###################################################
+rej <- rejProb(m)>0.5;
+rej[1]
+
+
+###################################################
+### code chunk number 16: simctest-mmctest-intro.Rnw:396-401
 ###################################################
 n <- 8;
 ngroups <- 20;
@@ -124,7 +131,7 @@ for(j in (ngroups/2+1):ngroups) G[j,] <- rnorm(n,mean=0,sd=3);
 
 
 ###################################################
-### code chunk number 16: simctest-mmctest-intro.Rnw:342-364
+### code chunk number 17: simctest-mmctest-intro.Rnw:409-431
 ###################################################
 # class ExSampler, inherited from mmctSamplerGeneric
 setClass("ExSampler", contains="mmctSamplerGeneric",
@@ -151,32 +158,32 @@ setMethod("getNumber", signature(obj="ExSampler"),
 
 
 ###################################################
-### code chunk number 17: simctest-mmctest-intro.Rnw:373-374
+### code chunk number 18: simctest-mmctest-intro.Rnw:440-441
 ###################################################
 exsampler <- new("ExSampler", data=G);
 
 
 ###################################################
-### code chunk number 18: simctest-mmctest-intro.Rnw:382-384
+### code chunk number 19: simctest-mmctest-intro.Rnw:449-451
 ###################################################
 m <- mmctest(h=hBH);
 m <- run(m, exsampler, maxsteps=list(undecided=0));
 
 
 ###################################################
-### code chunk number 19: simctest-mmctest-intro.Rnw:390-391
+### code chunk number 20: simctest-mmctest-intro.Rnw:457-458
 ###################################################
 testResult(m)$rejected
 
 
 ###################################################
-### code chunk number 20: simctest-mmctest-intro.Rnw:395-396
+### code chunk number 21: simctest-mmctest-intro.Rnw:462-463
 ###################################################
 pEstimate(m)
 
 
 ###################################################
-### code chunk number 21: simctest-mmctest-intro.Rnw:402-433
+### code chunk number 22: simctest-mmctest-intro.Rnw:469-500
 ###################################################
 quickperm <- function(a) {
   n <- length(a);
@@ -212,13 +219,13 @@ for(i in 1:ngroups) {
 
 
 ###################################################
-### code chunk number 22: simctest-mmctest-intro.Rnw:437-438
+### code chunk number 23: simctest-mmctest-intro.Rnw:504-505
 ###################################################
 pexact
 
 
 ###################################################
-### code chunk number 23: simctest-mmctest-intro.Rnw:443-444
+### code chunk number 24: simctest-mmctest-intro.Rnw:510-511
 ###################################################
 which(hBH(pexact, threshold=0.1))
 

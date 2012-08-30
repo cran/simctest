@@ -8,7 +8,7 @@
   Constructor for class `mmctest'.
 }
 \usage{
- mmctest(epsilon=0.01, threshold=0.1, r=10000, h, thompson=F)
+ mmctest(epsilon=0.01, threshold=0.1, r=10000, h, thompson=F, R=1000)
 }
 \arguments{
   \item{epsilon}{probability of any misclassification one is willing to tolerate
@@ -22,6 +22,10 @@ form function(p, threshold) which returns the set of
 rejected indices.
   }
   \item{thompson}{if set to true, mmctest will use a Thompson strategy to draw further samples
+  }
+  \item{R}{number of repetitions (=draws from the posterior distributions) used to calculate
+  empirical probabilities of each hypothesis being rejected -- used to calculate weights
+  in QuickMMCTest (option thompson=TRUE in the mmctest constructor)
   }
 }
 \section{Methods}{

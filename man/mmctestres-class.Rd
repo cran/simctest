@@ -16,6 +16,7 @@ are of type mmctestres.
     \item{\code{epsilon}:}{Object of class \code{"numeric"}  }
     \item{\code{threshold}:}{Object of class \code{"numeric"}  }
     \item{\code{r}:}{Object of class \code{"numeric"}  }
+    \item{\code{R}:}{Object of class \code{"numeric"}  }
     \item{\code{h}:}{Object of class \code{"function"}  }
     \item{\code{gensample}:}{Object of class \code{"mmctSamplerGeneric"}  }
     \item{\code{g}:}{Object of class \code{"numeric"}  }
@@ -24,6 +25,7 @@ are of type mmctestres.
     \item{\code{B}:}{Object of class \code{"numeric"}  }
     \item{\code{C}:}{Object of class \code{"numeric"}  }
     \item{\code{thompson}:}{Object of class \code{"logical"}  }
+    \item{\code{rejprob}:}{Object of class \code{"logical"}  }
   }
 }
 \section{Methods}{
@@ -32,6 +34,7 @@ are of type mmctestres.
     \item{cont}{\code{signature(data = "mmctestres", steps = "numeric")}: ... }
     \item{show}{\code{signature(object = "mmctestres")}: ... }
     \item{pEstimate}{\code{signature(obj = "mmctestres")}: ... }
+    \item{rejProb}{\code{signature(obj = "mmctestres")}: ... }
     \item{confidenceLimits}{\code{signature(obj = "mmctestres")}: ... }
     \item{testResult}{\code{signature(obj = "mmctestres")}: ... }
     \item{summary.mmctestres}{\code{signature(object = "mmctestres")}: ... }

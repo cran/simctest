@@ -1,17 +1,13 @@
-\documentclass{article}
+\documentclass[a4paper]{article}
 %\VignetteIndexEntry{Short Introduction - MMCTest}
-
-\usepackage{vmargin}
-\setpapersize{A4}
-\setmargrb{2cm}{2cm}{2cm}{2cm}
 \usepackage{hyperref}
-
 \usepackage{natbib}
 
 %length of the line in R-outputs
 <<echo=FALSE,results=hide>>=
 options(width=80)
 @
+
 
 
 \title{R-package ``simctest'' \\ R-class ``mmctest'' \\ A Short Introduction}
@@ -171,7 +167,7 @@ be executed.
 This is done by creating an object of type
 \texttt{mmctest} using the pseudo-constructor
 \begin{center}
-\texttt{mmctest(epsilon=0.01, threshold=0.1, r=10000, h, thompson=F)},
+\texttt{mmctest(epsilon=0.01, threshold=0.1, r=10000, h, thompson=F, R=1000)},
 \end{center}
 where \texttt{epsilon} is the overall error
 on the classification being correct one is willing to spend
@@ -186,10 +182,15 @@ controls after which number of samples half the
 error probability has been spent and
 can be chosen arbitrarily.
 The function $h$ is the multiple testing procedure.
-Thompson sampling can be used to determine how many
-samples are to be drawn in each iteration
-(switch \texttt{thompson}, default is \textit{false}),
-see \cite{bioinf}.
+
+Thompson sampling can be used to efficiently allocate each new
+batch of samples per iteration, see \cite{quickmmctest}:
+it can be activated using the switch \texttt{thompson} (default is \textit{false}),
+where the parameter $R$ determines the accuracy
+(default value $1000$ repetitions)
+with which weights are computed
+\citep{quickmmctest}.
+The coming subsubsections contain further details.
 
 Any function
 \begin{center}
@@ -317,6 +318,72 @@ as argument and returns a list containing
 lower confidence limits (vector `lowerLimits') and
 upper confidence limits (vector `upperLimits') for
 each p-value.
+
+
+\subsubsection{Switching to QuickMMCTest}
+The QuickMMCTest algorithm presented in \cite{quickmmctest}
+is included as a special case of MMCTest.
+
+To activate MMCTest, please set the parameter \texttt{thompson}
+in the \texttt{mmctest} constructor to TRUE.
+
+The constructor contains a further value $R$ (default value $R=1000$)
+which controls the accuracy with which weights are computed in
+QuickMMCTest,
+see \cite{quickmmctest} for an explanation.
+
+Apart from setting \texttt{thompson} to TRUE, nothing needs to be done
+to use QuickMMCTest.
+
+Typically, QuickMMCTest is run using a maximal total effort
+and a maximal number of iterations as stopping criteria:
+if these two are specified in \texttt{maxit} and \texttt{maxnum}
+(see "A simple run of the algorithm"), QuickMMCTest spreads
+out the total number of samples over all \texttt{maxit} iterations
+and uses the weights to allocate samples.
+
+If QuickMMCTest is run without a maximal total effort and a maximal
+number of iterations,
+it allocates the batch of samples that MMCTest would have allocated,
+which is geometrically increased in each iteration, see \cite{gandy12:mmct}.
+QuickMMCTest thus runs until the algorithm is stopped manually
+or the desired number of undecided hypotheses is reached.
+
+
+\subsubsection{Empirical rejection probabilities}
+When using QuickMMCTest,
+hypotheses can be classified after termination using three methods:
+\texttt{summary.mmctestres} provides sets of rejected, non-rejected
+and undecided hypotheses as in MMCTest,
+\texttt{pEstimates} provides estimated p-values computed with a pseudo-count
+which can be plugged into the multiple testing procedure,
+and finally
+<<>>=
+rej <- rejProb(m)>0.5;
+rej[1]
+@
+provides empirical rejection probabilities for QuickMMCTest
+as used in \cite{quickmmctest}.
+
+These are obtained by drawing $R$ sets of all the $m$ p-values from the Beta
+posteriors for all p-values, by evaluating the multiple testing procedure
+on each set of p-values and by recording the number of times each hypothesis is rejected
+based on the sampled p-values.
+
+The resulting proportion of rejections out of $R$ repetitions
+are reported by the method \texttt{rejProb}
+(as a vector of length $m$, one number between $0$ and $1$ per hypothesis)
+and give an indicator
+of how stable the decision on each hypothesis is:
+i.e.\ proportions close to one indicate a very stable decision that a hypothesis
+is rejected, likewise proportions close to zero indicate non-rejections
+and values close to $0.5$ indicate very unstable decisions.
+
+By thresholding them against, e.g.\ $0.5$, empirical rejections can be obtained
+as demonstrated in the above code example
+(all hypotheses with a rejection probability above $0.5$ are rejected).
+The threshold $0.5$ is arbitrary and can be replaced by higher (lower)
+values to be more (less) conservative.
 
 
 \subsubsection{An extended example}
