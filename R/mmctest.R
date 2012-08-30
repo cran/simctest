@@ -91,6 +91,7 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
     batchN <- obj@internal$batchN;
     pu <- obj@internal$pu;
     pl <- obj@internal$pl;
+    it <- obj@internal$it;
 
     A <- obj@A;
     B <- obj@B;
@@ -98,7 +99,6 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 
     m <- getNumber(obj@gensample);
     currentBatch <- max(batchN);
-    it <- 0;
     timer <- proc.time()[[3]];
     copying <- 0;
 
@@ -116,7 +116,7 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	# proportional to the probability of its p-value being the next one lying above the threshold line
 	# (i.e. use rank of last undecided hypothesis: k = m-|decided to be accepted|);
 	# this approach does not depend on ranks
-	if((obj@thompson==T) && (length(B)<m)) {
+	if((obj@thompson==T) && (it>0)) {
 	  # update
 	  prior_alpha <- 1+g;
 	  prior_beta <- 1+num-g;
@@ -129,7 +129,7 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	num[B] <- num[B] + batchN[B];
 
 	# compute upper "exact" confidence level (Clopper-Pearson)
-	a <- (num/(num+obj@r) - (num-batchN)/(num-batchN+obj@r)) * (obj@epsilon/length(B));
+	a <- (num/(num+obj@r) - (num-batchN)/(num-batchN+obj@r)) * (obj@epsilon/m);
 	pu_ <- pu;
 	pl_ <- pl;
 	qindex <- (g>0) & (g<num);
@@ -152,6 +152,8 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	A <- which(obj@h(pu, obj@threshold));
 	C <- which(obj@h(pl, obj@threshold));
 	B <- setdiff(C, A);
+	
+	it <- it+1;
 
 	copying <- 1;
 	obj@g <- g;
@@ -159,13 +161,12 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	obj@internal$batchN <- batchN;
 	obj@internal$pu <- pu;
 	obj@internal$pl <- pl;
-
+	obj@internal$it <- it;
 	obj@A <- A;
 	obj@B <- B;
 	obj@C <- C;
 	copying <- 0;
 
-	it <- it+1;
 	if((stopcrit$maxnum>0) && (sum(num)+length(B)*floor(1.25*currentBatch)>=stopcrit$maxnum)) { break; }
 	if((stopcrit$maxit>0) && (it>=stopcrit$maxit)) { break; }
 	if((stopcrit$elapsedsec>0) && (proc.time()[[3]]-timer>=stopcrit$elapsedsec)) { break; }
@@ -178,7 +179,7 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	obj@internal$batchN <- batchN;
 	obj@internal$pu <- pu;
 	obj@internal$pl <- pl;
-
+	obj@internal$it <- it;
 	obj@A <- A;
 	obj@B <- B;
 	obj@C <- C;
@@ -284,6 +285,7 @@ setMethod("run", signature(alg="mmctest", gensample="mmctSamplerGeneric"), funct
     obj@internal$batchN <- rep(10, m);
     obj@internal$pu <- rep(1, m);
     obj@internal$pl <- rep(0, m);
+    obj@internal$it <- 0;
 
     obj@A <- 0;
     obj@B <- 1:m;
