@@ -1,16 +1,19 @@
 Package: simctest
-Version: 1.99-2
-Date: 2012-03-19
+Version: 2.1
+Date: 2012-08-30
 Title: Safe implementation of Monte Carlo tests.
-Author: Axel Gandy <a.gandy@imperial.ac.uk> and Patrick Rubin-Delanchy
-        <patrick.rubin-delanchy@imperial.ac.uk>
+Author: Axel Gandy <a.gandy@imperial.ac.uk> with contributions from
+        Patrick Rubin-Delanchy <patrick.rubin-delanchy@imperial.ac.uk>
+        and Georg Hahn <g.hahn11@imperial.ac.uk>
 Maintainer: Axel Gandy <a.gandy@imperial.ac.uk>
 Depends: R (>= 2.2.0), methods, stats
 Suggests:
-Description: Monte Carlo computation of p-value with uniformly bounded
-        resampling risk, computation of the power of a Monte test.
+Description: Algorithms for the implementation and evaluation of Monte
+        Carlo tests, as well as for their use in multiple testing
+        procedures.
 License: GPL (>= 2)
 URL: http://www2.imperial.ac.uk/~agandy
+Collate: mcp.R simctest.R mmctest.R
 Repository: CRAN
-Date/Publication: 2012-03-19 17:45:23
-Packaged: 2012-03-19 16:48:45 UTC; agandy
+Packaged: 2012-09-17 12:14:57 UTC; agandy
+Date/Publication: 2012-09-17 12:55:29

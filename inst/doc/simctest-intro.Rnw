@@ -1,19 +1,30 @@
 \documentclass{article}
 %\VignetteIndexEntry{Short Introduction}
-
+\usepackage{vmargin}
+\setpapersize{A4}
+\setmargrb{2cm}{2cm}{2cm}{2cm}
 \usepackage{hyperref}
 
 \usepackage{natbib}
 
+%length of the line in R-outputs
+<<echo=FALSE,results=hide>>=
+options(width=80)
+@
+
+
+
 \title{R-package ``simctest''\\ A Short Introduction}
 
 \author{Axel Gandy and Patrick Rubin-Delanchy}
+
+
 \begin{document}
 \maketitle
 
 This document describes briefly how to use the R-package which implements the methods from ``Sequential implementation of Monte Carlo tests with uniformly bounded resampling risk'' and ``An algorithm to compute the power of Monte Carlo tests with guaranteed precision'', based on \cite{gandy06:Resampling} and \cite{gandy11:mcp}.
 
-
+The usage of the ``mmctest'' algorithm is explained in the vignette ``simctest-mmctest-intro''.
 
 
 \section{Installation}

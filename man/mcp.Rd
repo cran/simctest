@@ -82,6 +82,8 @@ cp=0.99,maxeffort=Inf,options = list())
 \author{Axel Gandy and Patrick Rubin-Delanchy}
 
 \examples{
+#The following example takes a bit of computing time
+\dontrun{
 #Example where we know the power should be the level of the test
 genstream <- function(){p <- runif(1); function(N){runif(N) <= p}}
 
@@ -89,5 +91,6 @@ res <- mcp(genstream, alpha=0.05, delta="adaptive", cp=0.99)
 
 #should find confidence interval of length 0.02 centered around 0.05
 res
+}
 }
 

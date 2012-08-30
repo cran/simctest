@@ -1,4 +1,4 @@
-export(simctest,getalgprecomp,getalgonthefly,mcp,mkdeltamid)
+export(simctest,getalgprecomp,getalgonthefly,mcp,mkdeltamid,mmctest,hBH,hPC,hBonferroni,mmctSampler)
 #S3method(confint,sampalgres)
 import("methods")
 import("stats")
@@ -7,7 +7,11 @@ exportClasses("sampalg",
               "sampalgPrecomp",
               "sampalgres",
               "sampalgontheflyres",
-              "mcpres"
+              "mcpres",
+	      "mmctSamplerGeneric",
+	      "mmctSampler",
+	      "mmctestres",
+	      "mmctest"
               )
-exportMethods(run,cont,getbounds,show,confint,getU,getL)
+exportMethods(run,cont,getbounds,show,confint,getU,getL,pEstimate,confidenceLimits,testResult,summary.mmctestres,getSamples,getNumber)
 useDynLib("simctest",simctest.extendboundsC=extendbounds)

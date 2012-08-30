@@ -4,6 +4,7 @@
 \alias{cont-methods}
 \alias{cont,sampalgres-method}
 \alias{cont,sampalgontheflyres-method}
+\alias{cont,mmctestres-method}
 \title{Methods for Function `cont' in Package `simctest'}
 \description{
   Continues the sampling for some more steps.
@@ -22,6 +23,7 @@
   \describe{
     \item{data = "sampalgres"}{ works with the algorithm based on precomputation. }   
     \item{data = "sampalgontheflyres"}{ works with the on-the-fly algorithm. }
+    \item{data = "mmctestres"}{ works with object of type "mmctestres". }
   }
 }
 \examples{
