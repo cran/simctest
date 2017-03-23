@@ -21,8 +21,7 @@ options(width=80)
 
 This document describes briefly how to use the class ``mmctest'', included
 in the R-package ``simctest''. It implements
-the methods from ``A Sequential Sampling Procedure for Multiple Testing
-Problems with Bounded Risk of Classification Errors'',
+the methods from ``MMCTest-A Safe Algorithm for Implementing Multiple Monte Carlo Tests'',
 based on \cite{gandy12:mmct}.
 
 The class can be used to evaluate the statistical significance of each

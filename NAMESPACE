@@ -1,5 +1,9 @@
-export(simctest,getalgprecomp,getalgonthefly,mcp,mkdeltamid,mmctest,hBH,hPC,hBonferroni,mmctSampler)
+export(simctest,getalgprecomp,getalgonthefly,mcp,mkdeltamid)
+export(mmctest,hBH,hPC,hBonferroni,mmctSampler)
+export(mctest,mctest.RL,mctest.simctest,J,Jstar,Jnarrow,print.mctestres)
+S3method(print,mctestres)
 #S3method(confint,sampalgres)
+importFrom("graphics", "hist")
 import("methods")
 import("stats")
 exportClasses("sampalg",
@@ -15,4 +19,4 @@ exportClasses("sampalg",
               )
 S3method(summary,mmctestres)
 exportMethods(run,cont,getbounds,show,confint,getU,getL,pEstimate,rejProb,confidenceLimits,testResult,summary.mmctestres,getSamples,getNumber)
-useDynLib("simctest",simctest.extendboundsC=extendbounds)
+useDynLib("simctest",.registration = TRUE)

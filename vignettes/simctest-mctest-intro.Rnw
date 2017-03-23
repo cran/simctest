@@ -1,0 +1,259 @@
+\documentclass[a4paper]{article}
+%\VignetteIndexEntry{Short Introduction - MCTest}
+\usepackage{hyperref}
+\usepackage{natbib}
+% symbol to denote ``possible significance''
+\newcommand{\ps}{${}^{\sim}$}
+
+%length of the line in R-outputs
+<<echo=FALSE,results=hide>>=
+options(width=80)
+@
+
+
+
+\begin{document}
+\title{R-package ``simctest''\\R-class ``mctest''\\A Short Introduction}
+\author{Dong Ding, Axel Gandy and Georg Hahn}
+\maketitle
+This document describes briefly how to use the class ``mctest'', included in the R-package ``simctest''.
+It implements the methods from ``Implementing Monte Carlo Tests with Multiple Thresholds'' of \cite{multthresh}.
+
+The class can be used to evaluate the statistical significance of a hypothesis $H_0$ with respect to multiple thresholds.
+It is assumed that the p-value $p$ of $H_0$ is not known analytically and can only be approximated via Monte Carlo simulation.
+To this end, a function \texttt{gen()} provided by the user is used to draw one sample under $H_0$ at a time
+in order to approximate the p-value corresponding to $H_0$.
+By means of an appropriate (default) choice of the thresholds,
+the R-class can be used to either obtain an exact decision for $H_0$ with respect to all given thresholds (in expected infinite time),
+or to obtain a finite time decision in extended star notation, see \cite{multthresh}.
+
+
+
+\section{Installation}
+The functions described in this document are included in the R-package ``simctest''.
+Please see the documentation of ``simctest'' on how to install the package.
+
+
+
+\section{Usage}
+The package is loaded by typing
+<<>>=
+library(simctest)
+@
+
+This document can be accessed via
+<<eval=FALSE>>=
+vignette("simctest-mctest-intro")
+@
+
+Documentation of the most useful commands can be obtained as follows:
+\begin{verbatim}
+> ? simctest
+> ? mctest
+\end{verbatim}
+
+
+
+\section{Testing with respect to multiple thresholds}
+\cite{multthresh} define a general scenario to test a hypothesis with respect to a given set of multiple thresholds.
+More generally, the authors describe an algorithm to find the \textit{p-value bucket} containing the p-value $p$ of interest
+(among a finite set of p-value buckets specified by the user).
+
+The classical choice of p-value buckets, given by
+$${\cal J}={\cal J}^{0}:=\{[0,10^{-3}],(10^{-3},0.01],(0.01,0.05],(0.05,1]\},$$
+is equivalent to deciding where $p$ lies in relation to the three thresholds $0.001$, $0.01$ and $0.05$
+traditionally employed in hypothesis testing.
+
+However, the concept of p-value buckets is more general:
+The overlapping intervals
+$${\cal J^{\ast}}={\cal J}^0\cup\{(10^{-5},4\cdot 10^{-3}],(4\cdot 10^{-3},0.03],(0.03,0.1]\}$$
+make it possible to extend the classical way of reporting significances to finite time decisions,
+however at the expense that the exact location of $p$ with respect to the buckets in $\cal J^\ast$ is only
+known for all but one bucket.
+For instance, in case the threshold $0.01$ will remain as the last undecided one,
+$p$ will be reported to be definitely (up to a pre-specified error probability) significant at the $0.05$ level,
+with possible significance at $0.01$ as well.
+This is summarised in Table \ref{tab:report}.
+
+\begin{table}[t]
+\centering
+\begin{tabular}{ccc ccc ccc}
+\hline
+$0$ & *** & $10^{-3}$ & ** & $0.01$ & * & $0.05$ &  & 1\\
+& $10^{-5}$ & **\ps & $4 \cdot 10^{-3}$ & *\ps & $0.03$ & \ps & $0.1$\\
+\hline
+\end{tabular}
+\caption{Reporting the significance of a hypothesis: The classical way (first row) from * (weakly significant)
+to *** (highly significant) and a proposed alternative approach using auxiliary thresholds (second row).
+Taken from \cite{multthresh}.}
+\label{tab:report}
+\end{table}
+
+A refined (more narrow) choice of overlapping thresholds used in \cite{multthresh} is given by
+$${\cal J}^n={\cal J}^0\cup\{(10^{-4},3\cdot 10^{-3}],(6\cdot 10^{-3},0.015],(0.04,0.06]\}.$$
+
+These three threshold sets (sets of p-value buckets) are provided as default choices in $R$ upon loading \texttt{simctest}
+as variables \texttt{J}, \texttt{Jstar} and \texttt{Jnarrow}.
+
+
+
+\section{Using the R-class}
+The following gives a step-by-step introduction to the R-class \texttt{mctest} and provides examples.
+
+\subsection{Providing a sampler interface}
+\label{section_sampler}
+To implement a given test,
+it suffices to specify a function \texttt{gen()} (without input parameters) which returns one sample under $H_0$,
+thus allowing to approximate the p-value $p$ of $H_0$.
+
+For simplicity, we assume $p=0.04$ for now and
+we simulate samples under $H_0$ by drawing independent Bernoulli samples, thus
+<<>>=
+gen <- function() { runif(1)<0.04 }
+@
+
+\subsection{Defining p-value buckets}
+\label{section_defining_buckets}
+A set of $r$ p-value buckets one wishes to test $p$ against is specified as an $r \times 2$ matrix.
+For instance,
+the traditional choice of thresholds $0.001$, $0.01$ and $0.05$ already seen in the definition of \texttt{J} is given as
+<<>>=
+J <- matrix(nrow=2,
+            c(0,   1e-3,
+              1e-3,1e-2,
+              1e-2,0.05,
+              0.05,1))
+colnames(J) <- c("***","**","*","")
+@
+Additionally, the significance classifier symbols corresponding to each bucket are specified as column names.
+
+\subsection{Testing with respect to a given set of p-value buckets}
+Given a generating mechanism for samples under $H_0$ is provided (see Section \ref{section_sampler}),
+the main algorithm can be called using
+<<>>=
+res <- mctest(gen,J=Jnarrow,epsilon=0.001,batch=10,
+	      batchincrement=1.1,maxbatch=100,method="simctest")
+@
+where the parameter \texttt{method} can take the arguments "simctest" and "RL".
+These two options refer to the method used to compute confidence intervals for $p$, see \cite{multthresh}.
+The choice of confidence intervals does not affect the accuracy of the result.
+The choice "simctest", however, seems to be computationally more favourable since it leads to faster decisions on $p$.
+
+The other parameters are as follows:
+\begin{itemize}
+  \item \texttt{J} is the matrix of p-value buckets (default choice is \texttt{Jnarrow}).
+  \item \texttt{epsilon} is the allowed resampling error for the (simultaneous) decision on all buckets.
+  \item \texttt{batch} is the batch size for new samples drawn in each iteration.
+  \item \texttt{batchincrement} is the geometric increment used to increase the batch size of samples drawn
+  (use value $1$ for no increase).
+  \item \texttt{maxbatch} is the upper limit of samples drawn in each iteration.
+  \item \texttt{method} is the method used to compute confidence intervals for $p$, use "simctest" or "RL".
+\end{itemize}
+
+In fact,
+the function \texttt{mctest} is just a wrapper function for the actual routines carrying out the testing, precisely
+<<results=hide>>=
+mctest.RL(gen,J=Jnarrow,epsilon=0.001,batch=10,
+	  batchincrement=1.1,maxbatch=100)
+@
+for the "RL" (Robbins-Lai) approach and
+<<results=hide>>=
+mctest.simctest(gen,J=Jnarrow,epsilon=0.001,batch=10,
+		batchincrement=1.1,maxbatch=100)
+@
+for the "simctest" approach.
+These two functions can also be called directly.
+
+\subsection{Testing result}
+Once \texttt{mctest} (or \texttt{mctest.RL} or \texttt{mctest.simctest}, respectively) have finished their computation,
+a result object of the class \texttt{mctestres} is returned.
+This class provides a print function for its objects.
+
+First,
+<<>>=
+res
+@
+prints a summary of the computation,
+consisting of the final interval (bucket) from \texttt{J} the p-value is determined to lie in,
+the decision (taken from the definition of \texttt{J}, see Section \ref{section_defining_buckets}) in (extended) star notation,
+an estimate of the $p$,
+as well as the batched number of samples actually drawn in the run
+and the actual (non-batched) number of samples needed to reach a decision
+(due to batching, a few samples more are drawn in the last batch than would have been needed to reach a decision).
+
+Similarly, the individual elements of the results object can be accessed by the user:
+<<>>=
+res$decision.interval
+res$decision
+res$est.p
+res$batchedSamples
+res$actualSamples
+@
+They can be obtained as list entries \textit{decision.interval}, \textit{decision}, \textit{est.p},
+\textit{batchedSamples} and \textit{actualSamples}.
+
+\subsection{An extended example}
+The following example is a likelihood ratio test of contingency table data which can be found in \cite{multthresh}.
+It consists of $39$ multinomial counts for two categorical variables in a $5 \times 7$ contingency table.
+We wish to test for independence of these two variables.
+
+We first enter the data example found in \cite{gandy06:Resampling}, \cite{newton1994bootstrap} or \cite{davison1997bma}
+as well as the likelihood ratio test statistic:
+<<>>=
+dat <- matrix(nrow=5,ncol=7,byrow=TRUE,
+  c(1,2,2,1,1,0,1,
+    2,0,0,2,3,0,0,
+    0,1,1,1,2,7,3,
+    1,1,2,0,0,0,1,
+    0,1,1,1,1,0,0))
+loglikrat <- function(data) {
+  cs <- colSums(data)
+  rs <- rowSums(data)
+  mu <- outer(rs,cs)/sum(rs)
+  2*sum(ifelse(data<=0.5, 0,data*log(data/mu)))
+}
+@
+
+\cite{davison1997bma} propose to use a parametric bootstrap test.
+The following is a function to resample the dataset:
+<<>>=
+resample <- function(data){
+  cs <- colSums(data)
+  rs <- rowSums(data)
+  n <- sum(rs)
+  mu <- outer(rs,cs)/n/n
+  matrix(rmultinom(1,n,c(mu)),nrow=dim(data)[1],ncol=dim(data)[2])
+}
+@
+
+After evaluating the test statistic on the (original) data,
+<<>>=
+t <- loglikrat(dat)
+@
+and storing the result in $t$,
+we can define a p-value of a right-sided test as the proportion of exceedances
+of the test statistic evaluated on the resampled data over $t$.
+The following function returns binary samples corresponding to these exceedances:
+<<>>=
+gen <- function(){loglikrat(resample(dat))>=t}
+@
+
+Using the function \texttt{gen}, we can test for independence in the contingency table as
+<<>>=
+res <- mctest(gen,method="simctest")
+mctest.simctest(gen)
+mctest.RL(gen)
+@
+using the wrapper \texttt{mctest} as well as \texttt{mctest.simctest} or \texttt{mctest.RL}.
+The decision interval for the p-value as well as its significance
+(for the first instance of \texttt{mctest} which saved the test result)
+can be queried using
+<<>>=
+res$decision.interval
+res$decision
+@
+
+\bibliographystyle{apalike}
+\bibliography{papers}
+
+\end{document}
