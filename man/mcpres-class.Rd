@@ -24,11 +24,15 @@
 \section{Methods}{
   \describe{
     \item{show}{\code{signature(object = "mcpres")}: ... }
-	 }
+  }
 }
+       
 \references{
-  Gandy, A. and Rubin-Delanchy, P. An algorithm to compute the power of
-  Monte Carlo tests with guaranteed precision. 	arXiv:1110.1248v1}
+  Gandy, A. and Rubin-Delanchy, P (2013). An Algorithm to
+  compute the power of Monte Carlo tests with guaranteed
+  precision. Annals of Statistics, 41(1):125--142.
+}
+
 \author{Axel Gandy and Patrick Rubin-Delanchy}
 
 \examples{

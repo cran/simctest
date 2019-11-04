@@ -22,7 +22,7 @@ getalgprecomp(level = 0.05, epsilon = 0.001, halfspend = 1000)
 }
 \references{
   Gandy, A. (2009) Sequential Implementation of Monte Carlo Tests 
-  with Uniformly Bounded Resampling Risk. To appear in JASA.
+  with Uniformly Bounded Resampling Risk. JASA, 104(488):1504-1511.
 }
 \author{Axel Gandy}
 \examples{

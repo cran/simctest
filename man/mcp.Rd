@@ -77,8 +77,7 @@ cp=0.99,maxeffort=Inf,options = list())
     result of a hypothesis test or brute force (the confidence interval coverage probability is guaranteed in either case.)}
 }
 \references{
-  Gandy, A. and Rubin-Delanchy, P. An algorithm to compute the power of
-  Monte Carlo tests with guaranteed precision. arXiv:1110.1248v1}
+  Gandy, A. and Rubin-Delanchy, P.  An algorithm to compute the power of Monte Carlo tests with guaranteed precision. Annals of Statistics, 41(1):125--142, 2013.}
 \author{Axel Gandy and Patrick Rubin-Delanchy}
 
 \examples{

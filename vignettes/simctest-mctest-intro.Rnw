@@ -1,5 +1,5 @@
 \documentclass[a4paper]{article}
-%\VignetteIndexEntry{Short Introduction - MCTest}
+%\VignetteIndexEntry{p-value Buckets}
 \usepackage{hyperref}
 \usepackage{natbib}
 % symbol to denote ``possible significance''
@@ -13,11 +13,11 @@ options(width=80)
 
 
 \begin{document}
-\title{R-package ``simctest''\\R-class ``mctest''\\A Short Introduction}
+\title{R-package ``simctest''\\p-value buckets\\ R-class ``mctest''\\A Short Introduction}
 \author{Dong Ding, Axel Gandy and Georg Hahn}
 \maketitle
 This document describes briefly how to use the class ``mctest'', included in the R-package ``simctest''.
-It implements the methods from ``Implementing Monte Carlo Tests with Multiple Thresholds'' of \cite{multthresh}.
+It implements the methods from ``Implementing Monte Carlo Tests with P-value Buckets'' of \cite{multthresh}.
 
 The class can be used to evaluate the statistical significance of a hypothesis $H_0$ with respect to multiple thresholds.
 It is assumed that the p-value $p$ of $H_0$ is not known analytically and can only be approximated via Monte Carlo simulation.
@@ -66,34 +66,16 @@ traditionally employed in hypothesis testing.
 
 However, the concept of p-value buckets is more general:
 The overlapping intervals
-$${\cal J^{\ast}}={\cal J}^0\cup\{(10^{-5},4\cdot 10^{-3}],(4\cdot 10^{-3},0.03],(0.03,0.1]\}$$
+$${\cal J^{\ast}}={\cal J}^0\cup\{(5\cdot 10^{-4},2\cdot 10^{-3}],(8\cdot 10^{-3},0.012],(0.045,0.055]\}$$
 make it possible to extend the classical way of reporting significances to finite time decisions,
 however at the expense that the exact location of $p$ with respect to the buckets in $\cal J^\ast$ is only
 known for all but one bucket.
 For instance, in case the threshold $0.01$ will remain as the last undecided one,
-$p$ will be reported to be definitely (up to a pre-specified error probability) significant at the $0.05$ level,
+$p$ will be reported to be (up to a pre-specified error probability) significant at the $0.05$ level,
 with possible significance at $0.01$ as well.
-This is summarised in Table \ref{tab:report}.
 
-\begin{table}[t]
-\centering
-\begin{tabular}{ccc ccc ccc}
-\hline
-$0$ & *** & $10^{-3}$ & ** & $0.01$ & * & $0.05$ &  & 1\\
-& $10^{-5}$ & **\ps & $4 \cdot 10^{-3}$ & *\ps & $0.03$ & \ps & $0.1$\\
-\hline
-\end{tabular}
-\caption{Reporting the significance of a hypothesis: The classical way (first row) from * (weakly significant)
-to *** (highly significant) and a proposed alternative approach using auxiliary thresholds (second row).
-Taken from \cite{multthresh}.}
-\label{tab:report}
-\end{table}
-
-A refined (more narrow) choice of overlapping thresholds used in \cite{multthresh} is given by
-$${\cal J}^n={\cal J}^0\cup\{(10^{-4},3\cdot 10^{-3}],(6\cdot 10^{-3},0.015],(0.04,0.06]\}.$$
-
-These three threshold sets (sets of p-value buckets) are provided as default choices in $R$ upon loading \texttt{simctest}
-as variables \texttt{J}, \texttt{Jstar} and \texttt{Jnarrow}.
+These two threshold sets (sets of p-value buckets) are provided as default choices in $R$ upon loading \texttt{simctest}
+as variables \texttt{J} and \texttt{Jstar}.
 
 
 
@@ -131,7 +113,7 @@ Additionally, the significance classifier symbols corresponding to each bucket a
 Given a generating mechanism for samples under $H_0$ is provided (see Section \ref{section_sampler}),
 the main algorithm can be called using
 <<>>=
-res <- mctest(gen,J=Jnarrow,epsilon=0.001,batch=10,
+res <- mctest(gen,J=Jstar,epsilon=0.001,batch=10,
 	      batchincrement=1.1,maxbatch=100,method="simctest")
 @
 where the parameter \texttt{method} can take the arguments "simctest" and "RL".
@@ -141,7 +123,7 @@ The choice "simctest", however, seems to be computationally more favourable sinc
 
 The other parameters are as follows:
 \begin{itemize}
-  \item \texttt{J} is the matrix of p-value buckets (default choice is \texttt{Jnarrow}).
+  \item \texttt{J} is the matrix of p-value buckets (default choice is \texttt{Jstar}).
   \item \texttt{epsilon} is the allowed resampling error for the (simultaneous) decision on all buckets.
   \item \texttt{batch} is the batch size for new samples drawn in each iteration.
   \item \texttt{batchincrement} is the geometric increment used to increase the batch size of samples drawn
@@ -153,12 +135,12 @@ The other parameters are as follows:
 In fact,
 the function \texttt{mctest} is just a wrapper function for the actual routines carrying out the testing, precisely
 <<results=hide>>=
-mctest.RL(gen,J=Jnarrow,epsilon=0.001,batch=10,
+mctest.RL(gen,J=Jstar,epsilon=0.001,batch=10,
 	  batchincrement=1.1,maxbatch=100)
 @
 for the "RL" (Robbins-Lai) approach and
 <<results=hide>>=
-mctest.simctest(gen,J=Jnarrow,epsilon=0.001,batch=10,
+mctest.simctest(gen,J=Jstar,epsilon=0.001,batch=10,
 		batchincrement=1.1,maxbatch=100)
 @
 for the "simctest" approach.

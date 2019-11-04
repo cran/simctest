@@ -570,7 +570,6 @@ mcp <- function(genstream, alpha=0.05, delta="adaptive", cp=0.99, maxeffort = In
       minN <- getlowpowerminN(delta = delta, cp=1-(1-cp)*(1-options$gammapilotprop-options$gammatestprop), betapilot = pilot$int[2], epsilon=options$epsilon)
       Ntried <- floor(seq(minN, 20*minN, length.out = 500))
       N <- Ntried[which.min(sapply(Ntried, function(n){eeffort(N = n, delta = delta, 1-(1-cp)*(1-options$gammapilotprop-options$gammatestprop), pilot = pilot)}))]
-      if (options$reports){cat(N, "\n")}
     }
     else if (pilot$int[1]>0.5){
       minN <- getlowpowerminN(delta=delta, cp=1-(1-cp)*(1-options$gammapilotprop-options$gammatestprop), betapilot = 1-pilot$int[1], options$epsilon)
@@ -582,6 +581,7 @@ mcp <- function(genstream, alpha=0.05, delta="adaptive", cp=0.99, maxeffort = In
       Ntried <- floor(seq(minN, 20*minN, length.out = 500))
       N <- Ntried[which.min(sapply(Ntried, function(n){eeffort(N = n, delta = delta, cp = 1-(1-cp)*(1-options$gammapilotprop-options$gammatestprop), pilot = pilot)}))]
     }
+    if (options$reports){cat(N, "\n")}
   }
   else{#more involved computations needed because almost no properties of Delta known
     getintcall <- function(rescount, N){

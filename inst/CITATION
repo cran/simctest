@@ -1,4 +1,4 @@
-citHeader("To cite the package in  publications use:")
+citHeader("To cite the package simctest in  publications use:")
 
 citEntry(entry="article",
          title = "Sequential Implementation of Monte Carlo Tests with Uniformly Bounded Resampling Risk",
@@ -9,10 +9,56 @@ citEntry(entry="article",
   	number	 = "488",
   	pages = "1504--1511",
          textVersion = 
-         paste("Axel Gandy (2009). ", 
+         paste("Axel Gandy (2009).", 
                "Sequential Implementation of Monte Carlo Tests with Uniformly Bounded Resampling Risk.",
                "Journal of the American Statistical Association, 104(488):1504-1511.",
-               sep="")
+               sep=" ")
          )
+
+citEntry(entry="article",
+         title="An algorithm to compute the power of Monte Carlo tests with guaranteed precision.",
+         journal="Annals of Statistics",
+         author="Axel Gandy and Patrick Rubin-Delanchy", 
+         volume="44",
+         number="1",
+         pages="125--142",
+         year=2013,
+         textVersion=
+             paste("Gandy, A. and Rubin-Delanchy, P. (2013).",
+                   "An Algorithm to compute the power of Monte Carlo tests with guaranteed precision.",
+                   "Annals of Statistics, 41(1):125--142.",
+                   sep=" ")
+         )
+
+citEntry(entry="article",
+         title="MMCTest - a safe algorithm for implementing multiple Monte Carlo tests.",
+         author="Axel Gandy and Georg Hahn",
+         year=2014,
+         journal="Scandinavian Journal of Statistics",
+         volume="41",
+         number="4",
+         pages="1083--1101",
+         textVersion=paste("Gandy, A. and Hahn, G. (2014).",
+                           "MMCTest - a safe algorithm for implementing multiple Monte Carlo tests.",
+                           "Scandinavian Journal of  Statistics, 41(4):1083--1101.",
+                           sep=" ")
+         )
+
+
+citEntry(entry="article",
+         title = "Implementing Monte Carlo Tests with P-value Buckets",
+         author = "Axel Gandy and Georg Hahn and Dong Ding",
+         year         = 2019,
+         journal = "Scandinavian Journal of Statistics",
+         url="https://arxiv.org/abs/1703.09305",
+         note="To appear.",
+         textVersion = 
+         paste("Axel Gandy, Georg Hahn and Dong Ding (2019).", 
+               "Implementing Monte Carlo Tests with P-value Buckets.",
+               "Scandinavian Journal of Statistics. To Appear.",
+               "URL https://arxiv.org/abs/1703.09305.",
+               sep=" ")
+         )
+
 
 citFooter("Please cite the package when using it")

@@ -28,7 +28,7 @@ Objects can be created by calls of the form \code{new("sampalgres", ...)}.
 }
 \references{
   Gandy, A. (2009) Sequential Implementation of Monte Carlo Tests 
-  with Uniformly Bounded Resampling Risk. To appear in JASA.}
+  with Uniformly Bounded Resampling Risk. JASA 104(488):1504-1511.}
 \author{ Axel Gandy }
 
 \examples{

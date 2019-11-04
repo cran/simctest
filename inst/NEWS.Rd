@@ -1,6 +1,13 @@
 \name{NEWS}
 \title{News for Package 'simctest'}
 
+\section{Changes in version 2.6 (2019-11-04)}{
+  \itemize{
+    \item Adjusted code to use p-value buckets as in the final version
+  of hte article "Implementing Monte Carlo Tests with P-value Buckets". 
+  }
+}
+
 \section{Changes in version 2.5}{
   \itemize{
     \item Added functionality for multiple thresholds (for article 'Implementing Monte Carlo Tests with Multiple Thresholds').

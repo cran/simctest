@@ -1,6 +1,6 @@
 export(simctest,getalgprecomp,getalgonthefly,mcp,mkdeltamid)
 export(mmctest,hBH,hPC,hBonferroni,mmctSampler)
-export(mctest,mctest.RL,mctest.simctest,J,Jstar,Jnarrow,print.mctestres)
+export(mctest,mctest.RL,mctest.simctest,J,Jstar,print.mctestres)
 S3method(print,mctestres)
 #S3method(confint,sampalgres)
 importFrom("graphics", "hist")

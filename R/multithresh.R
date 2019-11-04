@@ -3,7 +3,7 @@
 # file contains 2 classes
 
 # *************************************
-# TO EXPORT: J, Jstar and Jnarrow
+# TO EXPORT: J and Jstar
 #            mctest (main routine)
 #            mctest.RL, mctest.simctest
 # *************************************
@@ -18,30 +18,20 @@ colnames(J) <- c("***","**","*","")
 
 Jstar <- matrix(nrow=2,
                 c(0,   1e-3,
-                  1e-5,4e-3,
+                  5e-4,2e-3,
                   1e-3,0.01,
-                  4e-3,0.03,
+                  8e-3,0.012,
                   0.01,0.05,
-                  0.03,0.1,
+                  0.045,0.055,
                   0.05,1))
 colnames(Jstar) <- c("***","**~","**","*~","*","~","")
-
-Jnarrow <- matrix(nrow=2,
-                c(0,   1e-3,
-                  1e-4,3e-3,
-                  1e-3,0.01,
-                  6e-3,0.015,
-                  0.01,0.05,
-                  0.04,0.06,
-                  0.05,1))
-colnames(Jnarrow) <- c("***","**~","**","*~","*","~","")
 
 
 
 # mctest
 
 # multiple thresholds based on ROBBINS-LAI
-mctest.RL <- function(gen,J=Jnarrow,epsilon=0.001,batch=10,batchincrement=1.1,maxbatch=100) {
+mctest.RL <- function(gen,J=Jstar,epsilon=0.001,batch=10,batchincrement=1.1,maxbatch=100) {
   Sn = 0
   n = 0
   while(TRUE){
@@ -49,6 +39,14 @@ mctest.RL <- function(gen,J=Jnarrow,epsilon=0.001,batch=10,batchincrement=1.1,ma
     Sn <- Sn + sum(replicate(batch,gen()))
     stopcrit <- (n+1)*dbinom(Sn,prob=J,size=n)<=epsilon
     deriv <- Sn/J-(n-Sn)/(1-J)
+    if (any(J[1,]==0.)){
+        stopcrit[1,J[1,]==0.] <- TRUE
+        deriv[1,J[1,]==0.] <- 1
+    }
+    if (any(J[2,]==1.)){
+        stopcrit[2,J[2,]==1.] <- TRUE
+        deriv[2,J[2,]==1.] <- -1
+    }
     decided <- stopcrit[1,]&stopcrit[2,]&deriv[1,]>=0&deriv[2,]<=0
     if (any(decided)){
         j <- min(which(decided))
@@ -61,7 +59,7 @@ mctest.RL <- function(gen,J=Jnarrow,epsilon=0.001,batch=10,batchincrement=1.1,ma
 }
  
 # multiple thresholds based on SIMCTEST
-mctest.simctest <- function(gen,J=Jnarrow,epsilon=0.001,batch=10,batchincrement=1.1,maxbatch=100) {
+mctest.simctest <- function(gen,J=Jstar,epsilon=0.001,batch=10,batchincrement=1.1,maxbatch=100) {
   unique.alphas <- sort(unique(as.vector(J)))
   unique.alphas <- unique.alphas[-c(1,length(unique.alphas))]
   firststep <- TRUE
@@ -127,7 +125,7 @@ mctest.simctest <- function(gen,J=Jnarrow,epsilon=0.001,batch=10,batchincrement=
 
 # combined function
 # returns computation as mctestres object
-mctest <- function(gen,J=Jnarrow,epsilon=0.001,batch=10,batchincrement=1.1,maxbatch=100,method=c("simctest","RL")) {
+mctest <- function(gen,J=Jstar,epsilon=0.001,batch=10,batchincrement=1.1,maxbatch=100,method=c("simctest","RL")) {
   method <- match.arg(method)
   if(method=="simctest")  return(mctest.simctest(gen=gen,J=J,epsilon=epsilon,batch=batch,batchincrement=batchincrement,maxbatch=maxbatch))
   if(method=="RL")  return(mctest.RL(gen=gen,J=J,epsilon=epsilon,batch=batch,batchincrement=batchincrement,maxbatch=maxbatch))

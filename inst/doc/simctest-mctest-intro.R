@@ -19,13 +19,13 @@ library(simctest)
 
 
 ###################################################
-### code chunk number 4: simctest-mctest-intro.Rnw:111-112
+### code chunk number 4: simctest-mctest-intro.Rnw:93-94
 ###################################################
 gen <- function() { runif(1)<0.04 }
 
 
 ###################################################
-### code chunk number 5: simctest-mctest-intro.Rnw:120-126
+### code chunk number 5: simctest-mctest-intro.Rnw:102-108
 ###################################################
 J <- matrix(nrow=2,
             c(0,   1e-3,
@@ -36,34 +36,34 @@ colnames(J) <- c("***","**","*","")
 
 
 ###################################################
-### code chunk number 6: simctest-mctest-intro.Rnw:133-135
+### code chunk number 6: simctest-mctest-intro.Rnw:115-117
 ###################################################
-res <- mctest(gen,J=Jnarrow,epsilon=0.001,batch=10,
+res <- mctest(gen,J=Jstar,epsilon=0.001,batch=10,
 	      batchincrement=1.1,maxbatch=100,method="simctest")
 
 
 ###################################################
-### code chunk number 7: simctest-mctest-intro.Rnw:155-157
+### code chunk number 7: simctest-mctest-intro.Rnw:137-139
 ###################################################
-mctest.RL(gen,J=Jnarrow,epsilon=0.001,batch=10,
+mctest.RL(gen,J=Jstar,epsilon=0.001,batch=10,
 	  batchincrement=1.1,maxbatch=100)
 
 
 ###################################################
-### code chunk number 8: simctest-mctest-intro.Rnw:160-162
+### code chunk number 8: simctest-mctest-intro.Rnw:142-144
 ###################################################
-mctest.simctest(gen,J=Jnarrow,epsilon=0.001,batch=10,
+mctest.simctest(gen,J=Jstar,epsilon=0.001,batch=10,
 		batchincrement=1.1,maxbatch=100)
 
 
 ###################################################
-### code chunk number 9: simctest-mctest-intro.Rnw:173-174
+### code chunk number 9: simctest-mctest-intro.Rnw:155-156
 ###################################################
 res
 
 
 ###################################################
-### code chunk number 10: simctest-mctest-intro.Rnw:185-190
+### code chunk number 10: simctest-mctest-intro.Rnw:167-172
 ###################################################
 res$decision.interval
 res$decision
@@ -73,7 +73,7 @@ res$actualSamples
 
 
 ###################################################
-### code chunk number 11: simctest-mctest-intro.Rnw:202-214
+### code chunk number 11: simctest-mctest-intro.Rnw:184-196
 ###################################################
 dat <- matrix(nrow=5,ncol=7,byrow=TRUE,
   c(1,2,2,1,1,0,1,
@@ -90,7 +90,7 @@ loglikrat <- function(data) {
 
 
 ###################################################
-### code chunk number 12: simctest-mctest-intro.Rnw:219-226
+### code chunk number 12: simctest-mctest-intro.Rnw:201-208
 ###################################################
 resample <- function(data){
   cs <- colSums(data)
@@ -102,19 +102,19 @@ resample <- function(data){
 
 
 ###################################################
-### code chunk number 13: simctest-mctest-intro.Rnw:230-231
+### code chunk number 13: simctest-mctest-intro.Rnw:212-213
 ###################################################
 t <- loglikrat(dat)
 
 
 ###################################################
-### code chunk number 14: simctest-mctest-intro.Rnw:237-238
+### code chunk number 14: simctest-mctest-intro.Rnw:219-220
 ###################################################
 gen <- function(){loglikrat(resample(dat))>=t}
 
 
 ###################################################
-### code chunk number 15: simctest-mctest-intro.Rnw:242-245
+### code chunk number 15: simctest-mctest-intro.Rnw:224-227
 ###################################################
 res <- mctest(gen,method="simctest")
 mctest.simctest(gen)
@@ -122,7 +122,7 @@ mctest.RL(gen)
 
 
 ###################################################
-### code chunk number 16: simctest-mctest-intro.Rnw:251-253
+### code chunk number 16: simctest-mctest-intro.Rnw:233-235
 ###################################################
 res$decision.interval
 res$decision

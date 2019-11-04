@@ -5,24 +5,22 @@
 \alias{print.mctestres}
 \alias{J}
 \alias{Jstar}
-\alias{Jnarrow}
 \title{Sequential implementation of Monte Carlo
-  tests with multiple thresholds}
+  tests with p-valube buckets}
 \description{
   Sequential implementation
-  of the Monte Carlo test with multiple thresholds.
+  of the Monte Carlo test with p-value buckets.
 
   Implementation of the Robbins-Lai (mctest.RL) and SIMCTEST (mctest.simctest) approaches to compute a decision interval (and decision) with respect to several thresholds/ p-value buckets.
   The function "mctest" is a wrapper function for both the Robbins-Lai and the SIMCTEST approach which calls one of the two using an additional parameter "method" (method="simctest" for SIMCTEST and method="RL" for Robbins-Lai).
 }
 \usage{
-mctest(gen,J=Jnarrow,epsilon=0.001,batch=10,batchincrement=1.1,maxbatch=100,
+mctest(gen,J=Jstar,epsilon=0.001,batch=10,batchincrement=1.1,maxbatch=100,
   method=c("simctest","RL"))
-mctest.RL(gen,J=Jnarrow,epsilon=0.001,batch=10,batchincrement=1.1,maxbatch=100)
-mctest.simctest(gen,J=Jnarrow,epsilon=0.001,batch=10,batchincrement=1.1,maxbatch=100)
+mctest.RL(gen,J=Jstar,epsilon=0.001,batch=10,batchincrement=1.1,maxbatch=100)
+mctest.simctest(gen,J=Jstar,epsilon=0.001,batch=10,batchincrement=1.1,maxbatch=100)
 J
 Jstar
-Jnarrow
 \method{print}{mctestres}(x,...)
 }
 \arguments{
@@ -31,9 +29,9 @@ Jnarrow
     or 1 (sampled test static exceeds the observation)
   }
   \item{method}{which method to use for stopping}
-  \item{J}{interval buckets to use. A matrix with two rows, each column
+  \item{J}{p-value buckets to use. A matrix with two rows, each column
     describes an interval bucket. Column names give the code for the
-    interval bucket. Defaults to Jnarrow
+    interval bucket. Defaults to Jstar.
   }
   \item{epsilon}{error bound}
   \item{batch}{initial number of samples to use before checking for stopping}
@@ -50,11 +48,14 @@ Jnarrow
 
    An object of class \code{mctestres} is a list with  the
    following components: \code{step} (total batched number of samples drawn), \code{decision.interval} (interval for the p-value), \code{decision} (expressing significance), \code{est.p} (an estimate of the p-value) and \code{realn} (the actual number of samples taken without batching).
-}
+ }
+ 
 \references{
-  Ding, D., Gandy, A. and Hahn, G. (2017) Implementing Monte Carlo Tests
-  with Multiple Thresholds. Working paper.
+  Ding, D., Gandy, A. and Hahn, G. (2019) Implementing Monte Carlo Tests
+  with P-value Buckets. To appear in Scandinavian Journal of
+  Statistics. arXiv:1703.09305 [stat.ME].
 }
+
 \examples{
   #Example used in the above paper
   dat <- matrix(nrow=5,ncol=7,byrow=TRUE,

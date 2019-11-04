@@ -14,7 +14,9 @@ This is a virtual class - no objects should be derived from it.
 	 }
 }
 \references{
-  Gandy, A. and Hahn, G. (2013) MMCTest - A Safe Algorithm
-for Implementing Multiple Monte Carlo Tests. arXiv:1209.3963}
+  Gandy, A. and Hahn, G. (2014) MMCTest - a safe algorithm for
+  implementing multiple Monte Carlo tests. Scandinavian Journal of
+  Statistics, 41(4):1083--1101
+}
 \author{ Axel Gandy and Georg Hahn }
 \keyword{classes}
