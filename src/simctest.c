@@ -24,7 +24,7 @@ SEXP extendbounds(SEXP n, SEXP level, SEXP U, SEXP L, SEXP porig, SEXP preverr, 
   int* Lptr=INTEGER_POINTER(Lnew);
 
   int p0size=length(porig)+10;//ceil(sqrt(nint*log(nint)));
-  p0=  Calloc(p0size, double);
+  p0=  R_Calloc(p0size, double);
   if (p0size==10)  p0[0]=1;
   else
     for (i=0;i<length(porig);i++){
@@ -46,9 +46,9 @@ SEXP extendbounds(SEXP n, SEXP level, SEXP U, SEXP L, SEXP porig, SEXP preverr, 
   if (dostopprob){
     stopsize = nint+p0size;
     nstop=0;
-    stopn=Calloc(stopsize,int);
-    stopSn=Calloc(stopsize,int);
-    stopProb=Calloc(stopsize,double);
+    stopn=R_Calloc(stopsize,int);
+    stopSn=R_Calloc(stopsize,int);
+    stopProb=R_Calloc(stopsize,double);
   }
   // End: for stropprob
 
@@ -64,7 +64,7 @@ SEXP extendbounds(SEXP n, SEXP level, SEXP U, SEXP L, SEXP porig, SEXP preverr, 
     if (Uakt+1>p0size){
       //increase memory
       p0size*=2;
-      p0=Realloc(p0, p0size,double);
+      p0=R_Realloc(p0, p0size,double);
     }
     p0[Uakt]=p0[Uakt-1]*alphaint;
     for (pos=p0+(Uakt-1),pos2=p0+Uakt-2; pos>p0; pos--,pos2--){
@@ -80,9 +80,9 @@ SEXP extendbounds(SEXP n, SEXP level, SEXP U, SEXP L, SEXP porig, SEXP preverr, 
 	if (stopsize<=nstop){
 	  //increase memory
 	  stopsize*=2;
-	  stopn=Realloc(stopn,stopsize,int);
-	  stopSn=Realloc(stopSn,stopsize,int);
-	  stopProb=Realloc(stopProb,stopsize,double);
+	  stopn=R_Realloc(stopn,stopsize,int);
+	  stopSn=R_Realloc(stopSn,stopsize,int);
+	  stopProb=R_Realloc(stopProb,stopsize,double);
 	}
 	stopn[nstop]=i;
 	stopSn[nstop]=Uakt+p0start;
@@ -101,9 +101,9 @@ SEXP extendbounds(SEXP n, SEXP level, SEXP U, SEXP L, SEXP porig, SEXP preverr, 
 	if (stopsize<=nstop){                                       
 	  //increase memory
 	  stopsize*=2;
-	  stopn=Realloc(stopn,stopsize,int);
-	  stopSn=Realloc(stopSn,stopsize,int);
-	  stopProb=Realloc(stopProb,stopsize,double);
+	  stopn=R_Realloc(stopn,stopsize,int);
+	  stopSn=R_Realloc(stopSn,stopsize,int);
+	  stopProb=R_Realloc(stopProb,stopsize,double);
 	}
 	stopn[nstop]=i;
 	stopSn[nstop]=Lakt+p0start+1;
@@ -168,11 +168,11 @@ SEXP extendbounds(SEXP n, SEXP level, SEXP U, SEXP L, SEXP porig, SEXP preverr, 
     SET_STRING_ELT(list_names,i,mkChar(names[i]));
   setAttrib(list, R_NamesSymbol, list_names);
   if (dostopprob){
-    Free(stopn);
-    Free(stopSn);
-    Free(stopProb);
+    R_Free(stopn);
+    R_Free(stopSn);
+    R_Free(stopProb);
   }
-  Free(p0); /// should be done in a better way - see e.g. pwilcox
+  R_Free(p0); /// should be done in a better way - see e.g. pwilcox
   UNPROTECT(11+3*dostopprob);
   return list;
 }
